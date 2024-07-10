@@ -4,7 +4,7 @@ const { comparePass, hashPass } = require("../utils/handlePass.js");
 //uuid
 const { v4: uuid } = require("uuid");
 //file
-const { unlink } = require("fs");
+const fsPrmises = require("fs").promises;
 //path
 const path = require("path");
 
@@ -70,30 +70,32 @@ const updateUser = async (req, res) => {
 const updateAvatar = async (req, res) => {
   try {
     //valida avatar
-    if(!req.files) return res.status(400).json(["Not Image"]);
+    if (!req.files) return res.status(400).json(["Not Image"]);
     //usuario
     const user = await User.findById(req.userId, "-password").exec();
     //valida avatar anterior
-    if(user.avatar){
-      unlink(path.join(__dirname, "..", "/uploads", user.avatar), (error) => {
-        if(error) return res.status(400).json([error.message])
-      });
-    }
+    if (user.avatar)
+      await fsPrmises.unlink(
+        path.join(__dirname, "..", "/uploads", user.avatar)
+      );
     //avatar
     const { avatar } = req.files;
     const extFile = avatar.name.split(".")[1];
     const avatarName = uuid() + "." + extFile;
     //ubica nuevo avatar
-    avatar.mv(path.join(__dirname, "..", "/uploads", avatarName), (error) => {
-      if(error) return res.status(400).json([error.message]);
-    })
-    //edita documento
+    await avatar.mv(path.join(__dirname, "..", "/uploads", avatarName));
     user.avatar = avatarName;
-    const userUpdate = await user.save();
-    return res.status(200).json(userUpdate)
+    const userUpdated = await user.save();
+    return res.status(200).json(userUpdated);
   } catch (error) {
     return res.status(500).json([error.message]);
   }
 };
 
-module.exports = { getUserProfile, getUser, getUsers, updateUser, updateAvatar };
+module.exports = {
+  getUserProfile,
+  getUser,
+  getUsers,
+  updateUser,
+  updateAvatar,
+};
