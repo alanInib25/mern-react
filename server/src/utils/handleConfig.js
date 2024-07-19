@@ -7,4 +7,5 @@ module.exports = {
   JWT_PASS: process.env.JWT_PASS,
   NODEMAILER_EMAIL: process.env.NODEMAILER_EMAIL,
   NODEMAILER_EMAIL_PASS: process.env.NODEMAILER_EMAIL_PASS,
+  URL_ORIGIN: process.env.URL_ORIGIN,
 };

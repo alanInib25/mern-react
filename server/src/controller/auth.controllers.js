@@ -23,7 +23,7 @@ const authSignup = async (req, res, next) => {
     const hash = await hashPass(password);
     //instancia User
     await new User({ name, email, password: hash }).save();
-    return res.status(200).json(["Signup successful"]);
+    return res.sendStatus(200);
   } catch (error) {
     return res.status(500).json([error.message]);
   }
@@ -39,9 +39,9 @@ const authSignin = async (req, res) => {
       user === null ? false : await comparePass(password, user.password);
     if (!checkPass) return res.status(400).json(["Invalid credentials"]);
     //accessToken
-    const accessToken = await signToken({ id: user._id }, "10m");
+    const accessToken = await signToken({ id: user._id }, "20m");
     //set cookie with accesstoken
-    res.cookie("accessToken", accessToken, { maxAge: 1000 * 60 * 10 });
+    res.cookie("accessToken", accessToken, { maxAge: 1000 * 60 * 20 });
     //-select password
     user.set("password", undefined);
     return res.status(200).json(user);
@@ -61,7 +61,7 @@ const authForgotPassword = async (req, res) => {
   try {
     const { email } = req.body;
     const user = await User.findOne({ email });
-    if (!user) return res.status(404).json(["Invalid credentials"]);
+    if (!user) return res.status(404).json(["Invalid Email"]);
     //token para url de recuperacion
     const forgotToken = await signToken({ id: user._id }, "5m");
     //nodemailer
@@ -77,12 +77,12 @@ const authForgotPassword = async (req, res) => {
       from: `${NODEMAILER_EMAIL}`,
       to: `${user.email}`,
       subject: "Food - Reset Password",
-      text: `http://localhost:5173/auth/resetPassword/${forgotToken}`,
+      text: `http://localhost:5173/reset-password/${forgotToken}`,
     };
 
     transporter.sendMail(mailOptions, function (error, info) {
       if (error) return res.status(401).json(["Email don´t send"]);
-      return res.status(200).json(["email send"]);
+      return res.sendStatus(200);
     });
   } catch (error) {
     return res.status(500).json([error.message]);
@@ -93,7 +93,8 @@ const authForgotPassword = async (req, res) => {
 const authResetPassword = async (req, res) => {
   try {
     const { forgotToken } = req.params;
-    const { password } = req.body;
+    const { password, confirmPassword } = req.body;
+    if(password !== confirmPassword) return res.status(400).json(["Passwords not equals"])
     const hash = await hashPass(password);
     const userId = await verifyToken(forgotToken);
     await User.findOneAndUpdate({ _id: userId.id }, { password: hash});
@@ -103,10 +104,22 @@ const authResetPassword = async (req, res) => {
   }
 };
 
+//signin chech
+async function authSigninCheck(req, res){
+  try{
+    const user = await User.findById(req.userId, "-password").exec();
+    if(!user) return res.status(400).send([{ message: "Unauthorized"}]);
+    return res.status(200).json([user]);
+  }catch(error){
+    return res.status(500).json([error.message]);
+  }
+}
+
 module.exports = {
   authSignup,
   authSignin,
   authSignout,
+  authSigninCheck,
   authForgotPassword,
   authResetPassword,
 };

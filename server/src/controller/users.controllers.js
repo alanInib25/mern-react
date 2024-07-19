@@ -35,7 +35,7 @@ const getUser = async (req, res) => {
 //get users
 const getUsers = async (req, res) => {
   try {
-    const users = await User.find().exec();
+    const users = await User.find().sort({ createdAt: -1 }).exec();
     return res.status(200).json(users);
   } catch (error) {
     return res.status(500).json([error.message]);
@@ -48,7 +48,7 @@ const updateUser = async (req, res) => {
     const { name, email, password, confirmPassword } = req.body;
     //valida email duplicado
     const emailIs = await User.findOne({ email });
-    if (emailIs) return res.status(200).json(["Email exist"]);
+    if (emailIs && emailIs._id.toString() !== req.userId) return res.status(400).json(["Email exist"]);
     //valida passwords iguales
     if (password !== confirmPassword)
       return res.status(400).json(["Passwords not equals"]);
@@ -86,7 +86,7 @@ const updateAvatar = async (req, res) => {
     await avatar.mv(path.join(__dirname, "..", "/uploads", avatarName));
     user.avatar = avatarName;
     const userUpdated = await user.save();
-    return res.status(200).json(userUpdated);
+    return res.status(200).json(userUpdated.avatar);
   } catch (error) {
     return res.status(500).json([error.message]);
   }
