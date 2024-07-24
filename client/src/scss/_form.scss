@@ -1,0 +1,57 @@
+.form{
+  //titulo
+  & h2{
+    color: map-get($colors, six);
+  }
+  //errores
+  & small{
+    padding: .5rem;
+    font-size: 1.2rem;
+    color: map-get($colors, dark);
+    font-weight: 500;
+  }
+  min-width: 30rem;
+  box-shadow: 0 0 .1rem map-get($colors, dark);
+  padding: 1rem;
+  background: map-get($colors, second);
+  border: .3rem solid map-get($colors, third);
+  border-radius: .5rem;
+  @include flexBox($f-direction: column);
+
+  .form-row{
+    width: 100%;
+    input{
+      width: 100%;
+      height: 3rem;
+      padding: .5rem;
+      font-size: 1.2rem;
+      background: map-get($colors, second);
+      border: .3rem solid map-get($colors, third);
+      border-radius: .5rem;
+      color: map-get($colors, six);
+      &::placeholder{
+        color: map-get($colors, six);
+      }
+    }
+  }
+
+  .btn{
+    width: 100%;
+    padding: .7rem 1.5rem;
+    background: map-get($colors, five);
+    color: map-get($colors, second);
+    border: .3rem solid map-get($colors, third);
+    border-radius: 2rem;
+    transition: $transition-default;
+    cursor: pointer;
+    &:hover{
+      background: map-get($colors, third);
+      color: map-get($colors, dark)
+    }
+  }
+
+  p{
+    width: 100%;
+    text-align: center;
+  }
+}

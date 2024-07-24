@@ -17,6 +17,9 @@ import Dashboard from "./src/pages/Dashboard";
 import ForgotPassword from "./src/pages/ForgotPassword";
 import ResetPassword from "./src/pages/ResetPassword";
 
+//styles
+import "./src/scss/styles.scss";
+
 function App() {
   return (
     <BrowserRouter>

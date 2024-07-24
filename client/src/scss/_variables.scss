@@ -1,0 +1,33 @@
+//variables
+//colors
+$colors:(
+  "first": #91DDCF,
+  "second": #F7F9F2,
+  "third": #E8C5E5,
+  "fourth": #F19ED2,
+  "five": #FF7EE2,
+  "six":#A31ACB,
+  "dark": #0C0C0C,
+);
+
+//font-size
+$rem-font-size:(
+  "rem-lg": 62.5%,
+  "rem-m": 60%,
+  "rem-s": 55%,
+  "rem-xs": 45%,
+);
+
+//breackpoints
+$breakpoints:(
+  "lg": 992px,
+  "m": 768px,
+  "s": 480px,
+  "xs": 320px,
+);
+
+//transition
+$transition-default: .2s ease-in-out;
+
+//gradient
+$background-gradient: linear-gradient(to bottom, map-get($colors, first), map-get($colors, second), map-get($colors, third), map-get($colors, fourth));

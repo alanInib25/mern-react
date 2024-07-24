@@ -1,6 +1,18 @@
-body{
-  background: red;
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
+//font
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
+//variables
+@import "./variables";
+//mixin
+@import "./mixin";
+//generals styles
+@import "./generales";
+//pages
+@import "./auth";
+@import "./header";
+@import "./forgotPassword";
+@import "./resetPassword";
+@import "./dashboard";
+@import "./user";
+@import "./profile";
+@import "./home";
+@import "./footer";

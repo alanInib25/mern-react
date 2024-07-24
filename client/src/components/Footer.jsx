@@ -1,6 +1,10 @@
 
 function Footer() {
-  return <small>alanInib25</small>
+  return (
+    <section className="footer">
+      <h2>alanInib25</h2>
+    </section>
+  )
 }
 
 export default Footer;

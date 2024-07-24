@@ -1,0 +1,40 @@
+//flex
+@mixin flexBox($j-content: center, $a-items: center, $f-direction:row, $gap: 1rem ){
+  display: flex;
+  flex-direction: $f-direction;
+  justify-content: $j-content;
+  align-items: $a-items;
+  gap: $gap;
+}
+
+//grid
+@mixin gridBox($repeat: auto-fit, $min: 20rem, $max: 1fr, $gap: 1rem){
+  display: grid;
+  grid-template-columns: repeat($repeat, minmax($min, $max));
+  gap: $gap;
+}
+
+//mixing medias (breakpoint)
+@mixin media-lg(){
+  @media screen and (max-width: map-get($breakpoints, lg)){
+    @content;
+  }
+}
+
+@mixin media-m(){
+  @media screen and (max-width: map-get($breakpoints, m)){
+    @content;
+  }
+}
+
+@mixin media-s(){
+  @media screen and (max-width: map-get($breakpoints, s)){
+    @content;
+  }
+}
+
+@mixin media-xs(){
+  @media screen and (max-width: map-get($breakpoints, xs)){
+    @content;
+  }
+}

@@ -1,0 +1,27 @@
+.profile{
+  background: $background-gradient;
+  article{
+    @import "./form";
+    @include flexBox($f-direction: column, $gap: .5rem);
+    input[type = "file"]{
+      display: none;
+    }
+    label{
+    @include flexBox;
+      picture{
+        width: 16rem;
+        height: 16rem;
+        overflow: hidden;
+        border-radius: 100%;
+        border: .8rem solid map-get($colors, fourth );
+        cursor: pointer;
+        img{
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          object-position: center;
+        }
+      }
+    }
+  }
+};

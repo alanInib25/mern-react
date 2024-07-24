@@ -9,23 +9,27 @@ function ForgotPassword() {
   //context
   const { httpError, userForgotPassword } = useAuth();
   //customHook
-  const { form, errorForm, formHandleChange, formValidate } = useFormHook({ email: "" });
+  const { form, errorForm, formHandleChange, formValidate } = useFormHook({
+    email: "",
+  });
 
   function handleSubmit(e) {
     e.preventDefault();
     if (formValidate()) {
+      setMessage("Wait one moment")
       userForgotPassword(form).then((ok) => {
-        if (ok) return setMessage("we send an email to your account");
+        if (ok) return setMessage("We send an email to your account");
       });
     }
   }
   return (
-    <section className="forgot-password">
-      {httpError && <small>{httpError}</small>}
-      {errorForm && <small>{errorForm}</small>}
-      {message && <small>{message}</small>}
-      <form onSubmit={handleSubmit}>
-        <div>
+    <section className="forgotPassword">
+      <form className="form" onSubmit={handleSubmit}>
+        <h2>Forgot Password</h2>
+        {httpError && <small>{httpError}</small>}
+        {errorForm && <small>{errorForm}</small>}
+        {message && <small>{message}</small>}
+        <div className="form-row">
           <input
             type="email"
             name="email"
@@ -35,7 +39,7 @@ function ForgotPassword() {
             value={form.email}
           />
         </div>
-        <button>Send</button>
+        <button className="btn">Send</button>
       </form>
     </section>
   );

@@ -1,4 +1,4 @@
-import { useState } from "react";
+
 //react-router-dom
 import { Link } from "react-router-dom";
 //context
@@ -7,12 +7,15 @@ import { useAuth } from "../context/AuthContext";
 import useFormHook from "../customerHook/useFormHook";
 
 function Auth({ auth }) {
-  //customer hook
+  //custom hook
   const initiaForm =
     auth === "signup"
       ? { name: "", email: "", password: "" }
       : { email: "", password: "" };
-  const { form, formHandleChange, errorForm, formValidate } = useFormHook(initiaForm);
+      console.log(auth);
+      console.log(initiaForm)
+  const { form, formHandleChange, errorForm, formValidate } =
+    useFormHook(initiaForm);
   //context
   const { httpError, signupUser, signinUser } = useAuth();
 
@@ -20,7 +23,8 @@ function Auth({ auth }) {
   function handleSubmit(e) {
     e.preventDefault();
     //VALIDAR CAMPOS OBLIGATORIOS
-    if(formValidate()){
+    console.log(form)
+    if (formValidate()) {
       //API
       if (auth === "signup") return signupUser(form);
       if (auth === "signin") return signinUser(form);
@@ -28,12 +32,13 @@ function Auth({ auth }) {
   }
 
   return (
-    <section>
-      <form onSubmit={handleSubmit}>
+    <section className="auth">
+      <form className="form" onSubmit={handleSubmit}>
+        {auth === "signin" ? <h2>Signin User</h2> : <h2>Signup User</h2>}
         {errorForm && <small>{errorForm}</small>}
         {httpError && <small>{httpError}</small>}
-        <div>
-          {auth === "signup" && (
+        {auth === "signup" && (
+          <div className="form-row">
             <input
               type="text"
               name="name"
@@ -42,19 +47,19 @@ function Auth({ auth }) {
               onChange={formHandleChange}
               value={form.name}
             />
-          )}
-        </div>
-        <div>
+          </div>
+        )}
+        <div className="form-row">
           <input
             type="email"
             name="email"
             id="email"
-            placeholder="Email"
+            placeholder="Email..."
             onChange={formHandleChange}
             value={form.email}
           />
         </div>
-        <div>
+        <div className="form-row">
           <input
             type="password"
             name="password"
@@ -64,7 +69,7 @@ function Auth({ auth }) {
             value={form.password}
           />
         </div>
-        <button>Send</button>
+        <button className="btn">Send</button>
         {auth === "signin" ? (
           <>
             <p>

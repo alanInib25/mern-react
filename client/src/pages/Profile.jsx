@@ -29,45 +29,37 @@ function Profile() {
     e.preventDefault();
     if (formValidate()) {
       updateUser(form).then((ok) => {
-        if(ok) return alert("Succeful");
+        if (ok) return alert("Succeful");
       });
     }
   }
 
   return (
     <section className="profile">
-      <article className="profile-avatar__wrapper">
-        <div>
-          {avatar ? (
-            <img src={`${API_URL}/uploads/${avatar}`} alt={user.name} />
-          ) : (
-            <img
-              src={AvatarDefaul}
-              alt="Not user image"
-              width="100px"
-              height="100px"
-            />
-          )}
-        </div>
+      <article>
+        <label htmlFor="avatar">
+          <picture>
+            {avatar ? (
+              <img src={`${API_URL}/uploads/${avatar}`} alt={user.name} />
+            ) : (
+              <img src={AvatarDefaul} alt="Not user image" />
+            )}
+          </picture>
+        </label>
         {/* form update avatar */}
-        <form className="form__avatar">
-          <h2>User data</h2>
-          <div>
-            <input
-              type="file"
-              name="avatar"
-              id="avatar"
-              onChange={(e) => handleSubmitAvatar(e.target.files[0])}
-            />
-          </div>
+        <form>
+          <input
+            type="file"
+            name="avatar"
+            id="avatar"
+            onChange={(e) => handleSubmitAvatar(e.target.files[0])}
+          />
         </form>
-      </article>
-      {httpError && <small>{httpError}</small>}
-      {errorForm && <small>{errorForm}</small>}
-      <article className="profile-data__wraper">
+        {httpError && <small>{httpError}</small>}
+        {errorForm && <small>{errorForm}</small>}
         {/* form update data user */}
-        <form onSubmit={handleSubmitProfile} className="form__profile">
-          <div>
+        <form onSubmit={handleSubmitProfile} className="form">
+          <div className="form-row">
             <input
               type="text"
               name="name"
@@ -77,7 +69,7 @@ function Profile() {
               onChange={formHandleChange}
             />
           </div>
-          <div>
+          <div className="form-row">
             <input
               type="email"
               name="email"
@@ -87,7 +79,7 @@ function Profile() {
               onChange={formHandleChange}
             />
           </div>
-          <div>
+          <div className="form-row">
             <input
               type="password"
               name="password"
@@ -99,7 +91,7 @@ function Profile() {
               maxLength="12"
             />
           </div>
-          <div>
+          <div className="form-row">
             <input
               type="password"
               name="confirmPassword"
@@ -109,7 +101,7 @@ function Profile() {
               onChange={formHandleChange}
             />
           </div>
-          <button>Update</button>
+          <button className="btn">Update</button>
         </form>
       </article>
     </section>

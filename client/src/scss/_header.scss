@@ -1,0 +1,67 @@
+
+//header
+.header{
+  position: fixed;
+  backdrop-filter: blur(10rem);
+  box-shadow: 0 0 .1rem map-get($colors, second);
+  width: 100%;
+  padding: 1rem 5rem;
+  z-index: 1000;
+  //nav
+  .nav{
+   .nav-container{
+      @include flexBox($j-content: space-between);
+      //logo
+      .nav-logo{
+        a{
+          color: map-get($colors, five);
+          font-size: 1.5rem;
+          font-weight: 900;
+          @include flexBox($gap: .2rem);
+          text-decoration: none;
+          transition: $transition-default;
+  
+          svg{
+            color: map-get($colors, five);
+            font-size: 3rem;
+            transition: $transition-default;
+          }
+        }
+      }
+      //MENUMENUMENU
+      @import "./menu";
+      //nav-row
+      .nav-row{
+        @include flexBox;
+      }
+      //user avatar
+      .nav-avatar{
+        width: 3.5rem;
+        height: 3.5rem;
+        border: .3rem solid map-get($colors, fourth);
+        border-radius: 100%;
+        overflow: hidden;
+        img{
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          object-position: center;
+        }
+      }
+      //toggle
+      .nav-toggle{
+        display: none;
+        background: transparent;
+        cursor:pointer;
+        & svg{
+          font-size: 2rem;
+        }
+        //responsive
+        @include media-m{
+          display: block;
+        }
+      }
+    }
+  }
+}
+

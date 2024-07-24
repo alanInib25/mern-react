@@ -1,0 +1,8 @@
+
+.auth{
+  min-height: 100vh;
+  background: $background-gradient;
+  @include flexBox;
+  //form
+  @import "./form";
+}

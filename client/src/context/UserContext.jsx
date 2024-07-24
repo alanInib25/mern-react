@@ -28,7 +28,10 @@ function UserProvider({ children }) {
   const { isLoggedIn } = useAuth();
 
   useEffect(() => {
-    if (!isLoggedIn) setUser(null);
+    if (!isLoggedIn){
+      setUser(null);
+      setAvatar(null);
+    };
   }, [isLoggedIn]);
 
   //limpia httpError

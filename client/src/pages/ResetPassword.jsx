@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 //react-router-dom
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams } from "react-router-dom";
 //context
 import { useAuth } from "../context/AuthContext";
 //custom hook
@@ -19,17 +19,6 @@ function ResetPassword() {
 
   //useParams
   const { forgotToken } = useParams();
-  //useNavigate
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    let timeout;
-    if (message) {
-      timeout = setTimeout(() => {
-        navigate("/signin");
-      }, 5000);
-    }
-  }, [message]);
 
   //submit
   function handleSubmit(e) {
@@ -41,12 +30,13 @@ function ResetPassword() {
     }
   }
   return (
-    <section className="forgot-password">
-      {httpError && <small>{httpError}</small>}
-      {errorForm && <small>{errorForm}</small>}
-      {message && <small>{message}</small>}
-      <form onSubmit={handleSubmit}>
-        <div>
+    <section className="resetPassword">
+      <form className="form" onSubmit={handleSubmit}>
+        <h2>Reset Password</h2>
+        {httpError && <small>{httpError}</small>}-
+        {errorForm && <small>{errorForm}</small>}
+        {message && <small>{message}</small>}
+        <div className="form-row">
           <input
             type="password"
             name="password"
@@ -56,7 +46,7 @@ function ResetPassword() {
             value={form.password}
           />
         </div>
-        <div>
+        <div className="form-row">
           <input
             type="password"
             name="confirmPassword"
@@ -66,7 +56,7 @@ function ResetPassword() {
             value={form.confirmPassword}
           />
         </div>
-        <button>Send</button>
+        <button className="btn">Send</button>
       </form>
     </section>
   );

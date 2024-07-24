@@ -29,4 +29,5 @@ authRouter.post("/reset-password/:forgotToken", resetValidate, authResetPassword
 authRouter.get("/signout", tokenValidate, authRequire, authSignout);
 authRouter.get("/signin-check", tokenValidate, authRequire, authSigninCheck);
 
+
 module.exports = authRouter;

@@ -15,13 +15,13 @@ function Users() {
   if (loading) return <h2>Loading...</h2>;
 
   return (
-    <article>
+    <>
       {!users.length ? (
-        <h2>Not users</h2>
+        <p>Not users</p>
       ) : (
         users.map((user, index) => <User key={index} user={user} />)
       )}
-    </article>
+    </>
   );
 }
 

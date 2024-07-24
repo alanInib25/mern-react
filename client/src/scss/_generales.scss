@@ -1,0 +1,57 @@
+*{
+  margin: 0;
+  padding: 0;
+  border: none;
+  list-style: none;
+  text-decoration: none;
+  box-sizing: border-box;
+}
+
+html{
+  font-family: "Montserrat", sans-serif;
+  font-size: map-get($rem-font-size, rem-lg);
+  //breakpoints (responsive)
+  @include media-lg{
+    font-size: map-get($rem-font-size, rem-lg);
+  }
+  @include media-m{
+    font-size: map-get($rem-font-size, rem-m);
+  };
+  @include media-s{
+    font-size: map-get($rem-font-size, rem-s);
+  };
+  @include media-xs{
+    font-size: map-get($rem-font-size, rem-xs);
+  };
+}
+
+section{
+  padding: 7rem 5rem;
+  @include media-m{
+    padding: 7rem 3rem;
+  };
+  @include media-s{
+    padding: 7rem 1rem;
+  }
+}
+
+.link{
+  padding: .7rem 1.3rem;
+  font-size: 1.2rem;
+  font-weight: none;
+  border-radius: .8rem;
+  transition: $transition-default;
+  box-shadow: 0 0 .5rem map-get($colors, second);
+  &.signup{
+    color: map-get($colors, second);
+    background: map-get($colors, five);
+  };
+  &.signin{
+    color: map-get($colors, second);
+    background: map-get($colors, six);
+  }
+  &:nth-child(n):hover{
+    background: map-get($colors, third);
+    color: map-get($colors, dark)
+  };
+}

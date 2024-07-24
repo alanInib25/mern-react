@@ -13,8 +13,11 @@ function useFormHook(fields) {
   }, [errorForm])
 
   function formValidate(errorText){
+    console.log(form);
     let fieldsRequired = true;
-    Object.entries(form).forEach(item => {
+    Object
+    .entries(form)
+    .forEach(item => {
       if(item[1] === ""){
         fieldsRequired = false;
         setErrorForm( errorText || "All fields are required");
