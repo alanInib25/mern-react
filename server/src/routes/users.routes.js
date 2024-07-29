@@ -17,7 +17,7 @@ const { updateUserValidate } = require("../validators/users.validator.js");
 //endpoint
 usersRouter.get("/profile", tokenValidate, authRequire, getUserProfile);
 usersRouter.get("/:id", tokenValidate, authRequire, idValidate, getUser);
-usersRouter.get("/", tokenValidate, authRequire, getUsers);
+usersRouter.get("/", tokenValidate,  authRequire, getUsers);
 usersRouter.patch("/update", tokenValidate, authRequire, updateUserValidate, updateUser);
 usersRouter.post("/avatar", tokenValidate, authRequire, updateAvatar);
 

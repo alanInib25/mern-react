@@ -1,10 +1,10 @@
 //model
 const User = require("../models/users.model.js");
-const { comparePass, hashPass } = require("../utils/handlePass.js");
+const { hashPass } = require("../utils/handlePass.js");
 //uuid
 const { v4: uuid } = require("uuid");
 //file
-const fsPrmises = require("fs").promises;
+const fsPromises = require("fs").promises;
 //path
 const path = require("path");
 
@@ -35,7 +35,7 @@ const getUser = async (req, res) => {
 //get users
 const getUsers = async (req, res) => {
   try {
-    const users = await User.find().sort({ createdAt: -1 }).exec();
+    const users = await User.find().select("-password").sort({ createdAt: -1 }).exec();
     return res.status(200).json(users);
   } catch (error) {
     return res.status(500).json([error.message]);
@@ -75,7 +75,7 @@ const updateAvatar = async (req, res) => {
     const user = await User.findById(req.userId, "-password").exec();
     //valida avatar anterior
     if (user.avatar)
-      await fsPrmises.unlink(
+      await fsPromises.unlink(
         path.join(__dirname, "..", "/uploads", user.avatar)
       );
     //avatar

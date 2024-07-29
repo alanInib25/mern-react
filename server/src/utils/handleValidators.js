@@ -5,7 +5,7 @@ const validateResult = (req, res, next) => {
     validationResult(req).throw();
     return next();
   } catch (error) {
-    const errorText = error.errors.reduce((a, i) => a += i.msg + ", ", "");
+    const errorText = [...new Set(error.errors.map(({msg}) => msg))].join(", ");
     return res.status(400).json([errorText])
   }
 };

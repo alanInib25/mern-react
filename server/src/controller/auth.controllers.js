@@ -13,7 +13,7 @@ const {
 } = require("../utils/handleConfig.js");
 
 //register user
-const authSignup = async (req, res, next) => {
+const authSignup = async (req, res) => {
   try {
     const { name, email, password } = req.body;
     const emailIs = await User.findOne({ email });
@@ -61,7 +61,7 @@ const authForgotPassword = async (req, res) => {
   try {
     const { email } = req.body;
     const user = await User.findOne({ email });
-    if (!user) return res.status(404).json(["Invalid Email"]);
+    if (!user) return res.status(404).json(["Email not registered"]);
     //token para url de recuperacion
     const forgotToken = await signToken({ id: user._id }, "5m");
     //nodemailer
@@ -80,7 +80,7 @@ const authForgotPassword = async (req, res) => {
       text: `http://localhost:5173/reset-password/${forgotToken}`,
     };
 
-    transporter.sendMail(mailOptions, function (error, info) {
+    transporter.sendMail(mailOptions, function (error) {
       if (error) return res.status(401).json(["Email don´t send"]);
       return res.sendStatus(200);
     });

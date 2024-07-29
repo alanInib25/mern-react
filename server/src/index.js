@@ -9,3 +9,5 @@ server.listen(PORT, () => {
   //db connection
   require("./db.js");
 });
+
+module.exports = {server};
