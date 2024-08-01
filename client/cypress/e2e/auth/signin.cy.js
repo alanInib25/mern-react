@@ -9,7 +9,7 @@ describe("Signin page test", () => {
 
   it.skip("smoke", () => {
     cy.visit("http://localhost:5173/signin");
-  })
+  });
 
   it("Signin page is displayed", () => {
     cy.get("header").should("exist");
@@ -43,7 +43,8 @@ describe("Signin page test", () => {
       cy.get("[data-cy=form-auth]").submit();
       cy.location("pathname").should("not.contains", "dashboard");
       cy.url().should("not.include", "dashboard");
-      cy.getCookie("accessToken").should("be.null")
+      cy.getCookie("accessToken").should("be.null");
     });
   });
 });
+"Alan"
