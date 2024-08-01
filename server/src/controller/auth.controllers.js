@@ -22,8 +22,10 @@ const authSignup = async (req, res) => {
     //hash password
     const hash = await hashPass(password);
     //instancia User
-    await new User({ name, email, password: hash }).save();
-    return res.sendStatus(200);
+    const user = await new User({ name, email, password: hash }).save();
+    //-select password
+    user.set("password", undefined);
+    return res.status(200).json(user);
   } catch (error) {
     return res.status(500).json([error.message]);
   }

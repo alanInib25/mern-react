@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
 
 function useFormHook(fields) {
-  const [form, setForm] = useState(fields);
+  const formFields = fields;
+  const [form, setForm] = useState(formFields);
   const [errorForm, setErrorForm] = useState(null);
 
   useEffect(() => {
@@ -13,7 +14,6 @@ function useFormHook(fields) {
   }, [errorForm])
 
   function formValidate(errorText){
-    console.log(form);
     let fieldsRequired = true;
     Object
     .entries(form)
@@ -37,6 +37,11 @@ function useFormHook(fields) {
     });
   }
 
-  return { form, errorForm, formHandleChange, formValidate };
+  //clear form
+  function clearForm(){
+    setForm(formFields);
+  }
+
+  return { form, errorForm, formHandleChange, formValidate, clearForm };
 }
 export default useFormHook;

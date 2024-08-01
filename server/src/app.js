@@ -31,6 +31,10 @@ app.use(
 app.use(upload());
 app.use("/uploads", express.static(path.join(__dirname, "/uploads")));
 //routes
+if (process.env.NODE_ENV === "test") {
+  const testRouter = require("./controller/test.controllers.js");
+  app.use("/api/testing", testRouter);
+}
 app.use("/api/auth", authRouter);
 app.use("/api/users", usersRouter);
 app.use(notFound);

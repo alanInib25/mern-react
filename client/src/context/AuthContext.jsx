@@ -50,7 +50,10 @@ function AuthProvider({ children }) {
     try {
       setLoading(true);
       const res = await signupUserRequest(user);
-      if (res.status === 200) return setLoading(false);
+      if (res.status === 200) {
+        setLoading(false);
+        return "ok";
+      };
     } catch (error) {
       setHttpError(error.response.data[0]);
       return setLoading(false);

@@ -8,7 +8,7 @@ function Home() {
   return (
     <section className="home">
       <article className="left">
-        <p>
+        <p data-cy="homeP">
           discover the new and be surprised by <Link to="/signin"><span>people's</span></Link>
         </p>
 {/*         <div className="right-buttons">

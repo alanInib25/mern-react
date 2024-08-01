@@ -31,7 +31,7 @@ function Header() {
     <header className="header">
       <nav className="nav">
         <div className="nav-container">
-          <div className="nav-logo">
+          <div className="nav-logo" data-cy="nav-logo">
             <Link to="/">
               <IoLogoWechat />
               People's
@@ -39,7 +39,7 @@ function Header() {
           </div>
           {isLoggedIn && seeMenu && (
             <>
-              <ul className="nav-menu">
+              <ul className="nav-menu" data-cy="nav-menu">
                 <li className="nav-menu__item">
                   <NavLink to="/dashboard" onClick={handleClickNav}>
                     <FaHome />
@@ -74,9 +74,9 @@ function Header() {
             </>
           )}
           {!isLoggedIn && seeMenu && (
-            <ul className="nav-menu">
+            <ul className="nav-menu" data-cy="nav-menu">
               <li className="nav-menu__item">
-                <Link to="/" onClick={handleClickNav}>
+                <Link to="/" onClick={handleClickNav} data-cy="nav-menu-home">
                   <FaHome />
                   Home
                 </Link>
@@ -86,6 +86,7 @@ function Header() {
                   className="link signup"
                   to="/signup"
                   onClick={handleClickNav}
+                  data-cy="nav-menu-signup"
                 >
                   Signup
                 </Link>
@@ -95,13 +96,14 @@ function Header() {
                   className="link signin"
                   to="/signin"
                   onClick={handleClickNav}
+                  data-cy="nav-menu-signin"
                 >
                   Signin
                 </Link>
               </li>
             </ul>
           )}
-          <button className="nav-toggle" onClick={() => setSeeMenu(!seeMenu)}>
+          <button className="nav-toggle" onClick={() => setSeeMenu(!seeMenu)} data-cy="toggle-button">
             {seeMenu ? <IoMdClose /> : <IoMenu />}
           </button>
         </div>

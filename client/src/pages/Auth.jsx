@@ -1,4 +1,4 @@
-
+import { useState } from "react"
 //react-router-dom
 import { Link } from "react-router-dom";
 //context
@@ -7,14 +7,14 @@ import { useAuth } from "../context/AuthContext";
 import useFormHook from "../customerHook/useFormHook";
 
 function Auth({ auth }) {
+  //state
+  const [authMsg, setAuthMsg] = useState(null);
   //custom hook
   const initiaForm =
     auth === "signup"
       ? { name: "", email: "", password: "" }
       : { email: "", password: "" };
-      console.log(auth);
-      console.log(initiaForm)
-  const { form, formHandleChange, errorForm, formValidate } =
+  const { form, formHandleChange, errorForm, formValidate, clearForm } =
     useFormHook(initiaForm);
   //context
   const { httpError, signupUser, signinUser } = useAuth();
@@ -26,24 +26,32 @@ function Auth({ auth }) {
     console.log(form)
     if (formValidate()) {
       //API
-      if (auth === "signup") return signupUser(form);
+      if (auth === "signup"){
+        signupUser(form).then((ok) => {
+          if(ok === "ok"){
+            setAuthMsg("User registered");
+            clearForm();
+          }
+        })
+      };
       if (auth === "signin") return signinUser(form);
     }
   }
 
   return (
     <section className="auth">
-      <form className="form" onSubmit={handleSubmit}>
+      <form className="form" onSubmit={handleSubmit} data-cy="form-auth">
         {auth === "signin" ? <h2>Signin User</h2> : <h2>Signup User</h2>}
         {errorForm && <small>{errorForm}</small>}
         {httpError && <small>{httpError}</small>}
+        {authMsg && <small>{authMsg}</small>}
         {auth === "signup" && (
           <div className="form-row">
             <input
               type="text"
               name="name"
               id="name"
-              placeholder="Name.."
+              placeholder="Name..."
               onChange={formHandleChange}
               value={form.name}
             />
