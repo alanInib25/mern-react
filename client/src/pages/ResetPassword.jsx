@@ -31,9 +31,9 @@ function ResetPassword() {
   }
   return (
     <section className="resetPassword">
-      <form className="form" onSubmit={handleSubmit}>
+      <form className="form" onSubmit={handleSubmit} data-cy="form-reset">
         <h2>Reset Password</h2>
-        {httpError && <small>{httpError}</small>}-
+        {httpError && <small>{httpError}</small>}
         {errorForm && <small>{errorForm}</small>}
         {message && <small>{message}</small>}
         <div className="form-row">

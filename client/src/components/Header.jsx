@@ -11,6 +11,8 @@ import { FaUser } from "react-icons/fa";
 import { FaSignOutAlt } from "react-icons/fa";
 import { IoMenu } from "react-icons/io5";
 import { IoMdClose } from "react-icons/io";
+//image
+import AvatarDefaul from "/user.png";
 //env
 const API_URL = import.meta.env.VITE_API_URL;
 
@@ -48,13 +50,13 @@ function Header() {
                 </li>
                 <li className="nav-menu__item">
                   <NavLink to="/profile" onClick={handleClickNav}>
-                  <FaUser />
+                    <FaUser />
                     Profile
                   </NavLink>
                 </li>
                 <li className="nav-menu__item">
                   <NavLink to="/signout" onClick={handleClickNav}>
-                  <FaSignOutAlt />
+                    <FaSignOutAlt />
                     Signout
                   </NavLink>
                 </li>
@@ -63,7 +65,19 @@ function Header() {
                     <Link className="link-profile" to="/profile">
                       <div className="nav-row">
                         <picture className="nav-avatar">
-                          <img src={`${API_URL}/uploads/${avatar}`} />
+                          {avatar ? (
+                            <img
+                              src={`${API_URL}/uploads/${avatar}`}
+                              alt={user.name}
+                              data-cy="user-avatar-header"
+                            />
+                          ) : (
+                            <img
+                              src={AvatarDefaul}
+                              alt="Not user image"
+                              data-cy="user-avatar-header"
+                            />
+                          )}
                         </picture>
                         <h2>{`@${user.name}`}</h2>
                       </div>
@@ -103,7 +117,11 @@ function Header() {
               </li>
             </ul>
           )}
-          <button className="nav-toggle" onClick={() => setSeeMenu(!seeMenu)} data-cy="toggle-button">
+          <button
+            className="nav-toggle"
+            onClick={() => setSeeMenu(!seeMenu)}
+            data-cy="toggle-button"
+          >
             {seeMenu ? <IoMdClose /> : <IoMenu />}
           </button>
         </div>

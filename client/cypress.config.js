@@ -5,7 +5,7 @@ export default defineConfig({
     setupNodeEvents(on, config) {
       // implement node event listeners here
     },
-    experimentalStudio: true,
-    testIsolation: false,
+    "testIsolation": false,
+    "baseUrl":"http://localhost:5173",
   },
 });

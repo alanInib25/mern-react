@@ -1,6 +1,6 @@
-import { useState } from "react"
+import { useEffect, useState } from "react";
 //react-router-dom
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 //context
 import { useAuth } from "../context/AuthContext";
 //customerHook
@@ -8,32 +8,50 @@ import useFormHook from "../customerHook/useFormHook";
 
 function Auth({ auth }) {
   //state
-  const [authMsg, setAuthMsg] = useState(null);
-  //custom hook
+  const [signupStatus, setSignupStatus] = useState(false);
+
+  //context
+  const { httpError, signupUser, signinUser } = useAuth();
+
+  //useNavigate
+  const navigate = useNavigate();
+
+  //data for custom hook
   const initiaForm =
     auth === "signup"
       ? { name: "", email: "", password: "" }
       : { email: "", password: "" };
+  //custom hook form
   const { form, formHandleChange, errorForm, formValidate, clearForm } =
     useFormHook(initiaForm);
-  //context
-  const { httpError, signupUser, signinUser } = useAuth();
+
+  //
+  useEffect(() => {
+    let timeout;
+    if(signupStatus){
+      timeout = setTimeout(() => {
+        setSignupStatus(false);
+        navigate("/signin");
+      }, 3000);
+    }
+    return () => clearTimeout(timeout);
+  }, [signupStatus]);
 
   //handle submit
   function handleSubmit(e) {
     e.preventDefault();
     //VALIDAR CAMPOS OBLIGATORIOS
-    console.log(form)
+    console.log(form);
     if (formValidate()) {
       //API
-      if (auth === "signup"){
+      if (auth === "signup") {
         signupUser(form).then((ok) => {
-          if(ok === "ok"){
-            setAuthMsg("User registered");
+          if (ok === "ok") {
+            setSignupStatus(true);
             clearForm();
           }
-        })
-      };
+        });
+      }
       if (auth === "signin") return signinUser(form);
     }
   }
@@ -44,7 +62,7 @@ function Auth({ auth }) {
         {auth === "signin" ? <h2>Signin User</h2> : <h2>Signup User</h2>}
         {errorForm && <small>{errorForm}</small>}
         {httpError && <small>{httpError}</small>}
-        {authMsg && <small>{authMsg}</small>}
+        {signupStatus && <small>User Registered</small>}
         {auth === "signup" && (
           <div className="form-row">
             <input

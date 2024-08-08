@@ -12,11 +12,13 @@ function User({ user }) {
           <img
             src={`${API_URL}/uploads/${user.avatar}`}
             alt={user.name}
+            data-cy="user-avatar-dashboard"
           />
         ) : (
           <img
             src={`${AvatarDefaul}`}
             alt="Default User avatar"
+            data-cy="user-avatar-dashboard"
           />
         )}
       </picture>

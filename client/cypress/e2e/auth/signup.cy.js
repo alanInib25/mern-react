@@ -2,19 +2,21 @@ import user from "../../fixtures/user.json";
 
 describe("Signup page tests", () => {
   beforeEach(() => {
+    cy.visit("/signup");
     cy.db_reset_test();
-    cy.visit("http://localhost:5173/signup");
-  });
-
-  it.skip("smoke", () => {
-    cy.visit("http://localhost:5173/signup");
   });
 
   it("Signup page is displayed", () => {
     cy.get("header").should("exist");
     cy.get("h2").should("have.text", "Signup User");
     cy.get("[data-cy = form-auth]").should("be.visible");
+    cy.get("p").should("have.text", "Your have an account?Signin");
   });
+
+  it("Signup page click signin link", () => {
+    cy.get("p > a").should("contain", "Signin").click();
+    cy.location("pathname").should("include", "signin");
+  })
 
   //signup form with valid data
   describe("Signup with valid data", () => {
@@ -31,15 +33,9 @@ describe("Signup page tests", () => {
         .type(user.password);
       cy.get("[data-cy=form-auth]").submit();
       cy.get("small").should("have.text", "User registered");
-
       //verifica signup con login
-      cy.request("POST", "http://localhost:4000/api/auth/signin", {
-        email: user.email,
-        password: user.password,
-      }).then((response) => {
-        expect(response.body).to.have.property("_id");
-        expect(response.body).to.have.property("email", user.email);
-      });
+      cy.signinUser(user);
+      cy.signoutUser();
     });
 
     it("Signup form submit with password 12 length", () => {
@@ -54,15 +50,9 @@ describe("Signup page tests", () => {
         .type("123456789012");
       cy.get("[data-cy=form-auth]").submit();
       cy.get("small").should("have.text", "User registered");
-
       //verifica signup con login
-      cy.request("POST", "http://localhost:4000/api/auth/signin", {
-        email: "test2@test2.cl",
-        password: "123456789012",
-      }).then((response) => {
-        expect(response.body).to.have.property("_id");
-        expect(response.body).to.have.property("email", "test2@test2.cl");
-      });
+      cy.signinUser({email: "test2@test2.cl", password: "123456789012"});
+      cy.signoutUser();
     });
   });
 
@@ -116,8 +106,8 @@ describe("Signup page tests", () => {
       cy.get("small").should("have.text", "All fields are required");
     });
 
-    //invalid email
-    it("Signup without email", () => {
+    //invalid format email
+    it("Signup with bad format email", () => {
       cy.get('input[placeholder = "Name..."]')
         .should("be.visible")
         .type(user.name);
@@ -131,7 +121,7 @@ describe("Signup page tests", () => {
       cy.get("small").should("have.text", "Invalid Email");
     });
 
-    //password 5 charc length
+    //password 5 charc length Qtest limit)
     it("Signup with password length 5", () => {
       cy.get('input[placeholder = "Name..."]')
         .should("be.visible")
@@ -149,7 +139,7 @@ describe("Signup page tests", () => {
       );
     });
 
-    //password 13 charc length
+    //password 13 charc length (test limit)
     it("Signup with password length 13", () => {
       cy.get('input[placeholder = "Name..."]')
         .should("be.visible")

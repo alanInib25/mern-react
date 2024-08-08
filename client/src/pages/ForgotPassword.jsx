@@ -15,8 +15,8 @@ function ForgotPassword() {
 
   function handleSubmit(e) {
     e.preventDefault();
+/*     setMessage("Wait a moment..."); */
     if (formValidate()) {
-      setMessage("Wait one moment")
       userForgotPassword(form).then((ok) => {
         if (ok) return setMessage("We send an email to your account");
       });
@@ -24,7 +24,7 @@ function ForgotPassword() {
   }
   return (
     <section className="forgotPassword">
-      <form className="form" onSubmit={handleSubmit}>
+      <form className="form" onSubmit={handleSubmit} data-cy="form-forgot">
         <h2>Forgot Password</h2>
         {httpError && <small>{httpError}</small>}
         {errorForm && <small>{errorForm}</small>}
@@ -39,7 +39,7 @@ function ForgotPassword() {
             value={form.email}
           />
         </div>
-        <button className="btn">Send</button>
+        <button data-cy="btn-send" className="btn">Send</button>
       </form>
     </section>
   );

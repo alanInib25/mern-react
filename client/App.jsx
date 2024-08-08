@@ -10,12 +10,13 @@ import NotAuthRequire from "./src/components/NotAuthRequire";
 import Signout from "./src/components/Signout";
 //pages (components)
 import Home from "./src/pages/Home";
-import Auth from "./src/pages/Auth";
 import Profile from "./src/pages/Profile";
 import ErrorPage from "./src/pages/ErrorPage";
 import Dashboard from "./src/pages/Dashboard";
 import ForgotPassword from "./src/pages/ForgotPassword";
 import ResetPassword from "./src/pages/ResetPassword";
+import SigninUser from "./src/pages/SigninUser";
+import SignupUser from "./src/pages/SignupUser";
 
 //styles
 import "./src/scss/styles.scss";
@@ -29,8 +30,8 @@ function App() {
             <Route path="/" element={<Layout />}>
               <Route element={<NotAuthRequire />}>
                 <Route index element={<Home />} />
-                <Route path="/signup" element={<Auth auth="signup" />} />
-                <Route path="/signin" element={<Auth auth="signin" />} />
+                <Route path="/signup" element={<SignupUser />} />
+                <Route path="/signin" element={<SigninUser />} />
                 <Route
                   path="/forgot-password"
                   element={<ForgotPassword />}

@@ -41,9 +41,9 @@ const authSignin = async (req, res) => {
       user === null ? false : await comparePass(password, user.password);
     if (!checkPass) return res.status(400).json(["Invalid credentials"]);
     //accessToken
-    const accessToken = await signToken({ id: user._id }, "20m");
+    const accessToken = await signToken({ id: user._id }, "30s");
     //set cookie with accesstoken
-    res.cookie("accessToken", accessToken, { maxAge: 1000 * 60 * 20 });
+    res.cookie("accessToken", accessToken, { maxAge: 1000 * 30});
     //-select password
     user.set("password", undefined);
     return res.status(200).json(user);
@@ -84,7 +84,7 @@ const authForgotPassword = async (req, res) => {
 
     transporter.sendMail(mailOptions, function (error) {
       if (error) return res.status(401).json(["Email don´t send"]);
-      return res.sendStatus(200);
+      return res.status(200).json(forgotToken);
     });
   } catch (error) {
     return res.status(500).json([error.message]);

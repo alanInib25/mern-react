@@ -1,6 +1,6 @@
 //model
 const User = require("../models/users.model.js");
-const { hashPass } = require("../utils/handlePass.js");
+const { hashPass, comparePass } = require("../utils/handlePass.js");
 //uuid
 const { v4: uuid } = require("uuid");
 //file
@@ -35,7 +35,10 @@ const getUser = async (req, res) => {
 //get users
 const getUsers = async (req, res) => {
   try {
-    const users = await User.find().select("-password").sort({ createdAt: -1 }).exec();
+    const users = await User.find()
+      .select("-password")
+      .sort({ createdAt: -1 })
+      .exec();
     return res.status(200).json(users);
   } catch (error) {
     return res.status(500).json([error.message]);
@@ -46,21 +49,26 @@ const getUsers = async (req, res) => {
 const updateUser = async (req, res) => {
   try {
     const { name, email, password, confirmPassword } = req.body;
+    console.log(name, email, password, confirmPassword);
     //valida email duplicado
-    const emailIs = await User.findOne({ email });
-    if (emailIs && emailIs._id.toString() !== req.userId) return res.status(400).json(["Email exist"]);
+    const user = await User.findOne({ email });
+    if (user && user._id.toString() !== req.userId)
+      return res.status(400).json(["Email exist"]);
     //valida passwords iguales
     if (password !== confirmPassword)
       return res.status(400).json(["Passwords not equals"]);
     //hash password
     const hash = await hashPass(password);
+
     //update user
-    const user = await User.findByIdAndUpdate(
+    const userUpdated = await User.findByIdAndUpdate(
       req.userId,
       { name, email, password: hash },
       { new: true, select: "-password" }
     );
-    return res.status(200).json(user);
+    //-select password
+/*     userUpdated.set("password", undefined); */
+    return res.status(200).json(userUpdated);
   } catch (error) {
     return res.status(500).json([error.message]);
   }

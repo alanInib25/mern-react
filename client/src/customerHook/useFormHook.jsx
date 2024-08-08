@@ -18,6 +18,7 @@ function useFormHook(fields) {
     Object
     .entries(form)
     .forEach(item => {
+      console.log(item)
       if(item[1] === ""){
         fieldsRequired = false;
         setErrorForm( errorText || "All fields are required");

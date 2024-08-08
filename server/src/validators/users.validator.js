@@ -3,7 +3,7 @@ const validateResult = require("../utils/handleValidators.js");
 
 const updateUserValidate = [
   check("name", "Invalid Name").notEmpty().isString(),
-  check("email", "Invalid Email").notEmpty().isEmail().normalizeEmail(),
+  check("email", "Invalid Email").notEmpty().isEmail(),
   check("password", "Invalid Password between 6 and 12 charact")
     .notEmpty()
     .isString()

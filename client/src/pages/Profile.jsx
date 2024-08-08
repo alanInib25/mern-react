@@ -28,6 +28,7 @@ function Profile() {
   function handleSubmitProfile(e) {
     e.preventDefault();
     if (formValidate()) {
+      console.log(form)
       updateUser(form).then((ok) => {
         if (ok) return alert("Succeful");
       });
@@ -37,7 +38,7 @@ function Profile() {
   return (
     <section className="profile">
       <article>
-        <label htmlFor="avatar">
+        <label htmlFor="avatar" data-cy="avatar-label">
           <picture>
             {avatar ? (
               <img src={`${API_URL}/uploads/${avatar}`} alt={user.name} />
@@ -47,7 +48,7 @@ function Profile() {
           </picture>
         </label>
         {/* form update avatar */}
-        <form>
+        <form data-cy="avatar-form">
           <input
             type="file"
             name="avatar"
@@ -58,14 +59,14 @@ function Profile() {
         {httpError && <small>{httpError}</small>}
         {errorForm && <small>{errorForm}</small>}
         {/* form update data user */}
-        <form onSubmit={handleSubmitProfile} className="form">
+        <form onSubmit={handleSubmitProfile} className="form" data-cy="profile-form">
           <div className="form-row">
             <input
               type="text"
               name="name"
               id="name"
               value={form.name}
-              placeholder="name..."
+              placeholder="Name..."
               onChange={formHandleChange}
             />
           </div>
@@ -75,7 +76,7 @@ function Profile() {
               name="email"
               id="email"
               value={form.email}
-              placeholder="email..."
+              placeholder="Email..."
               onChange={formHandleChange}
             />
           </div>
@@ -85,7 +86,7 @@ function Profile() {
               name="password"
               id="password"
               value={form.password}
-              placeholder="password..."
+              placeholder="Password..."
               onChange={formHandleChange}
               minLength="6"
               maxLength="12"
@@ -97,7 +98,7 @@ function Profile() {
               name="confirmPassword"
               id="confirmPassword"
               value={form.confirmPassword}
-              placeholder="confirmPassword..."
+              placeholder="Confirm Password..."
               onChange={formHandleChange}
             />
           </div>

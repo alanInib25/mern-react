@@ -5,3 +5,4 @@
 #server
 /server/node_modules
 /server/.env
+/server/src/uploads

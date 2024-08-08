@@ -35,7 +35,7 @@ function AuthProvider({ children }) {
   useEffect(() => {
     let interval;
     if (isLoggedIn) {
-      interval = setInterval(() => checkSignin(), 10000);
+      interval = setInterval(() => checkSignin(), 1000 * 30);
     }
     return () => clearInterval(interval);
   }, [isLoggedIn]);
