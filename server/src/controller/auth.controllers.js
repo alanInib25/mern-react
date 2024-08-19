@@ -16,6 +16,7 @@ const {
 const authSignup = async (req, res) => {
   try {
     const { name, email, password } = req.body;
+    if(!name && !email && !password) return res.status(400).json(["All fields required"]);
     const emailIs = await User.findOne({ email });
     //email duplicado
     if (emailIs) return res.status(400).json(["Email exists"]);
@@ -43,12 +44,13 @@ const authSignin = async (req, res) => {
     //accessToken
     const accessToken = await signToken({ id: user._id }, "30s");
     //set cookie with accesstoken
-    res.cookie("accessToken", accessToken, { maxAge: 1000 * 30});
+    res.cookie("accessToken", accessToken, { maxAge: 1000 * 30 });
     //-select password
     user.set("password", undefined);
+    /* res */
     return res.status(200).json(user);
   } catch (error) {
-    return res.send(500).json([error.message]);
+    return res.status(500).json([error.message]);
   }
 };
 
@@ -84,7 +86,7 @@ const authForgotPassword = async (req, res) => {
 
     transporter.sendMail(mailOptions, function (error) {
       if (error) return res.status(401).json(["Email don´t send"]);
-      return res.status(200).json(forgotToken);
+      return res.sendStatus(200);
     });
   } catch (error) {
     return res.status(500).json([error.message]);

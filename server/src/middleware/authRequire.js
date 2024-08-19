@@ -5,7 +5,7 @@ const authRequire = async (req, res, next) => {
     const { accessToken } = req.cookies;
     const user = !accessToken ? false : await verifyToken(accessToken);
     //status(401) (en client se interpreta como una redireccion a signin)
-    if (!user) return res.status(401).json(["Token expires"]);
+    if (!user) return res.status(401).json(["Token expired"]);
     req.userId = user.id;
     next();
   } catch (error) {

@@ -32,10 +32,10 @@ function App() {
                 <Route index element={<Home />} />
                 <Route path="/signup" element={<SignupUser />} />
                 <Route path="/signin" element={<SigninUser />} />
-                <Route
+             {/*    <Route
                   path="/forgot-password"
                   element={<ForgotPassword />}
-                />
+                /> */}
                 <Route path="/reset-password/:forgotToken" element={<ResetPassword />}/>
               </Route>
               <Route element={<AuthRequire />}>

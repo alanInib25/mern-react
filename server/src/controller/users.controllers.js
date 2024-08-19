@@ -49,7 +49,6 @@ const getUsers = async (req, res) => {
 const updateUser = async (req, res) => {
   try {
     const { name, email, password, confirmPassword } = req.body;
-    console.log(name, email, password, confirmPassword);
     //valida email duplicado
     const user = await User.findOne({ email });
     if (user && user._id.toString() !== req.userId)
@@ -64,10 +63,10 @@ const updateUser = async (req, res) => {
     const userUpdated = await User.findByIdAndUpdate(
       req.userId,
       { name, email, password: hash },
-      { new: true, select: "-password" }
+      { new: true}
     );
     //-select password
-/*     userUpdated.set("password", undefined); */
+    userUpdated.set("password", undefined);
     return res.status(200).json(userUpdated);
   } catch (error) {
     return res.status(500).json([error.message]);
