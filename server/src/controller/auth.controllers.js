@@ -42,9 +42,9 @@ const authSignin = async (req, res) => {
       user === null ? false : await comparePass(password, user.password);
     if (!checkPass) return res.status(400).json(["Invalid credentials"]);
     //accessToken
-    const accessToken = await signToken({ id: user._id }, "30s");
+    const accessToken = await signToken({ id: user._id }, "30m");
     //set cookie with accesstoken
-    res.cookie("accessToken", accessToken, { maxAge: 1000 * 30 });
+    res.cookie("accessToken", accessToken, { maxAge: 1000 * 60 * 30 });
     //-select password
     user.set("password", undefined);
     /* res */

@@ -1,45 +1,71 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 //context
 import { useAuth } from "../context/AuthContext";
-//custom hook
-import useFormHook from "../customerHook/useFormHook";
+//react-hook-form
+import { useForm } from "react-hook-form";
+
 function ForgotPassword() {
   //stado
-  const [message, setMessage] = useState(null);
+  const [forgotStatus, setForgotStatus] = useState(null);
   //context
   const { httpError, userForgotPassword } = useAuth();
-  //customHook
-  const { form, errorForm, formHandleChange, formValidate } = useFormHook({
-    email: "",
+
+  //react-hook-form
+  const {
+    register,
+    reset,
+    handleSubmit,
+    formState: { errors },
+  } = useForm();
+
+  useEffect(() => {
+    let timeOut;
+    if (forgotStatus) {
+      timeOut = setTimeout(() => {
+        setForgotStatus(false);
+      }, 3000);
+    }
+    return () => clearTimeout(timeOut);
+  }, [forgotStatus]);
+
+  const onSubmitForm = handleSubmit((data) => {
+    userForgotPassword(data).then((status) => {
+      if (status === 200) {
+        setForgotStatus(true);
+        reset();
+        return;
+      }
+    });
   });
 
-  function handleSubmit(e) {
-    e.preventDefault();
-/*     setMessage("Wait a moment..."); */
-    if (formValidate()) {
-      userForgotPassword(form).then((ok) => {
-        if (ok) return setMessage("We send an email to your account");
-      });
-    }
-  }
   return (
     <section className="forgotPassword">
-      <form className="form" onSubmit={handleSubmit} data-cy="form-forgot">
+      <form className="form" onSubmit={onSubmitForm} data-cy="form-forgot">
         <h2>Forgot Password</h2>
         {httpError && <small>{httpError}</small>}
-        {errorForm && <small>{errorForm}</small>}
-        {message && <small>{message}</small>}
+        {forgotStatus && <small>"We send an email to your account"</small>}
         <div className="form-row">
           <input
             type="email"
             name="email"
             id="email"
             placeholder="Email..."
-            onChange={formHandleChange}
-            value={form.email}
+            {...register("email", {
+              required: {
+                value: true,
+                message: "Email is required",
+              },
+              pattern: {
+                value:
+                  /^(([^<>()[\]\.,;:\s@\"]+(\.[^<>()[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i,
+                message: "Email bad format",
+              },
+            })}
           />
         </div>
-        <button data-cy="btn-send" className="btn">Send</button>
+        <button data-cy="btn-send" className="btn">
+          Send
+        </button>
       </form>
     </section>
   );

@@ -52,7 +52,7 @@ function AuthProvider({ children }) {
       const res = await signupUserRequest(user);
       if (res.status === 200) {
         setLoading(false);
-        return "ok";
+        return res.status;
       };
     } catch (error) {
       setHttpError(error.response.data[0]);
@@ -107,7 +107,7 @@ function AuthProvider({ children }) {
       const res = await forgotPasswordRequest(email);
       if (res.status === 200){
         setLoading(true);
-        return "ok";
+        return res.status;
       };
     } catch (error) {
       return setHttpError(error.response.data[0]);
@@ -118,10 +118,9 @@ function AuthProvider({ children }) {
   async function userResetPassword(credentials, token){
     try{
       const res = await resetPasswordRequest(credentials, token);
-      console.log(res);
       if(res.status === 200){
         setLoading(false);
-        return "ok";
+        return res.status;
       };
     }catch(error){
       setHttpError(error.response.data[0]);

@@ -4,7 +4,7 @@
     @import "./form";
     @include flexBox($f-direction: column, $gap: .5rem);
     input[type = "file"]{
-      /* display: none; */
+      display: none;
       /* visibility: hidden; */
     }
     label{

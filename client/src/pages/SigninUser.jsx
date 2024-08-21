@@ -1,40 +1,30 @@
-import { useEffect, useState } from "react";
 //react-router-dom
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 //context
 import { useAuth } from "../context/AuthContext";
-//customerHook
-import useFormHook from "../customerHook/useFormHook";
-
+//react-hoof-form
+import { useForm } from "react-hook-form";
 function SigninUser() {
   //context
-  const { httpError, signupUser, signinUser } = useAuth();
+  const { httpError, signinUser } = useAuth();
 
-  //useNavigate
-  const navigate = useNavigate();
+  //react-hoof-form
+  const {
+    register,
+    reset,
+    handleSubmit,
+    formState: { errors },
+  } = useForm();
 
-  //custom hook
-  const { form, formHandleChange, errorForm, formValidate } = useFormHook({
-    email: "",
-    password: "",
+  const onSubmitForm = handleSubmit((data) => {
+    signinUser(data);
+    reset();
   });
-
-  //handle submit
-  function handleSubmit(e) {
-    e.preventDefault();
-    //VALIDAR CAMPOS OBLIGATORIOS
-    console.log(form);
-    if (formValidate()) {
-      //API
-      return signinUser(form);
-    }
-  }
 
   return (
     <section className="auth">
-      <form className="form" onSubmit={handleSubmit} data-cy="form-auth">
+      <form className="form" onSubmit={onSubmitForm} data-cy="form-auth">
         <h2>Signin User</h2>
-        {errorForm && <small>{errorForm}</small>}
         {httpError && <small>{httpError}</small>}
         <div className="form-row">
           <input
@@ -42,9 +32,19 @@ function SigninUser() {
             name="email"
             id="email"
             placeholder="Email..."
-            onChange={formHandleChange}
-            value={form.email}
+            {...register("email", {
+              required: {
+                value: true,
+                message: "Email is required",
+              },
+              pattern: {
+                value:
+                  /^(([^<>()[\]\.,;:\s@\"]+(\.[^<>()[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i,
+                message: "Emal bad format",
+              },
+            })}
           />
+          {errors.email && <p>{errors.email.message}</p>}
         </div>
         <div className="form-row">
           <input
@@ -52,9 +52,22 @@ function SigninUser() {
             name="password"
             id="password"
             placeholder="Password..."
-            onChange={formHandleChange}
-            value={form.password}
+            {...register("password", {
+              required: {
+                value: true,
+                message: "Password is required",
+              },
+              minLength: {
+                value: 6,
+                message: "Password 6 characters min",
+              },
+              maxLength: {
+                value: 12,
+                message: "Password 12 characters max",
+              },
+            })}
           />
+          {errors.password && <p>{errors.password.message}</p>}
         </div>
         <button className="btn">Send</button>
         <>

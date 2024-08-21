@@ -78,7 +78,7 @@ function UserProvider({ children }) {
       if(res.status === 200){
         setUser(res.data);
         setLoading(false);
-        return "ok";
+        return res.status;
       }
     }catch(error){
       setHttpError(error.response.data[0]);
@@ -96,7 +96,6 @@ function UserProvider({ children }) {
         return setLoading(false)
       }
     } catch (error) {
-      console.log(error)
       setHttpError(error.response.data[0])
       return setLoading(false);
     }

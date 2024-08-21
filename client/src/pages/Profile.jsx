@@ -1,23 +1,43 @@
+import { useState, useEffect } from "react";
 //context
 import { useUser } from "../context/UserContext";
-//customhook
-import useFormHook from "../customerHook/useFormHook";
+//react-hook-form
+import { useForm } from "react-hook-form";
 //api
 const API_URL = import.meta.env.VITE_API_URL;
 //image
 import AvatarDefaul from "/user.png";
 
 function Profile() {
+  //state
+  const [updateStatus, setUpdateStatus] = useState(false);
   //context
   const { user, avatar, httpError, updateUser, updataUsersAvatar } = useUser();
-
-  //customHook
-  const { form, formHandleChange, formValidate, errorForm } = useFormHook({
-    name: user.name,
-    email: user.email,
-    password: "",
-    confirmPassword: "",
+  //react-hook-form
+  const {
+    register,
+    reset,
+    watch,
+    handleSubmit,
+    formState: { errors },
+  } = useForm({
+    defaultValues: {
+      name: user.name,
+      email: user.email,
+      password: "",
+      confirmPassword: "",
+    },
   });
+
+  useEffect(() => {
+    let timeOut;
+    if(updateStatus){
+      timeOut = setTimeout(() => {
+        setUpdateStatus(false);
+      }, 3000)
+    }
+    return () => clearTimeout(timeOut);
+  }, [updateStatus])
 
   function handleSubmitAvatar(userAvatar) {
     const avatarData = new FormData();
@@ -25,15 +45,14 @@ function Profile() {
     return updataUsersAvatar(avatarData);
   }
 
-  function handleSubmitProfile(e) {
-    e.preventDefault();
-    if (formValidate()) {
-      console.log(form)
-      updateUser(form).then((ok) => {
-        if (ok) return alert("Succeful");
-      });
-    }
-  }
+  const onSubmitForm = handleSubmit((data) => {
+    updateUser(data).then((status) => {
+      if (status === 200) {
+        reset({"password": "", "confirmPassword": ""});
+        return setUpdateStatus(true);
+      }
+    });
+  });
 
   return (
     <section className="profile">
@@ -53,54 +72,100 @@ function Profile() {
             type="file"
             name="avatar"
             id="avatar"
+            accept=".png, .jpg, .jpeg"
             onChange={(e) => handleSubmitAvatar(e.target.files[0])}
           />
         </form>
         {httpError && <small>{httpError}</small>}
-        {errorForm && <small>{errorForm}</small>}
         {/* form update data user */}
-        <form onSubmit={handleSubmitProfile} className="form" data-cy="profile-form">
+        <form onSubmit={onSubmitForm} className="form" data-cy="profile-form">
+          {updateStatus && <small>Data Updated</small>}
           <div className="form-row">
             <input
               type="text"
               name="name"
               id="name"
-              value={form.name}
               placeholder="Name..."
-              onChange={formHandleChange}
+              {...register("name", {
+                required: {
+                  value: true,
+                  message: "Name is required",
+                },
+              })}
             />
+            {errors.name && <p>{errors.name.message}</p>}
           </div>
           <div className="form-row">
             <input
               type="email"
               name="email"
               id="email"
-              value={form.email}
               placeholder="Email..."
-              onChange={formHandleChange}
+              {...register("email", {
+                required: {
+                  value: true,
+                  message: "Email is required",
+                },
+                pattern: {
+                  value:
+                    /^(([^<>()[\]\.,;:\s@\"]+(\.[^<>()[\]\.,;:\s@\"]+)*)|(\".+\"))@(([^<>()[\]\.,;:\s@\"]+\.)+[^<>()[\]\.,;:\s@\"]{2,})$/i,
+                  message: "Email bad format",
+                },
+              })}
             />
+            {errors.email && <p>{errors.email.message}</p>}
           </div>
           <div className="form-row">
             <input
               type="password"
               name="password"
               id="password"
-              value={form.password}
               placeholder="Password..."
-              onChange={formHandleChange}
-              minLength="6"
-              maxLength="12"
+              {...register("password", {
+                required: {
+                  value: true,
+                  message: "Password is required",
+                },
+                minLength: {
+                  value: 6,
+                  message: "Password 6 characters min",
+                },
+                maxLength: {
+                  value: 12,
+                  message: "Password 12 characters max",
+                },
+              })}
             />
+            {errors.password && <p>{errors.password.message}</p>}
           </div>
           <div className="form-row">
             <input
               type="password"
               name="confirmPassword"
               id="confirmPassword"
-              value={form.confirmPassword}
               placeholder="Confirm Password..."
-              onChange={formHandleChange}
+              {...register("confirmPassword", {
+                required: {
+                  value: true,
+                  message: "Confirm Password is required",
+                },
+                minLength: {
+                  value: 6,
+                  message: "Confirm Password 6 characters min",
+                },
+                maxLength: {
+                  value: 12,
+                  message: "Confirm Password 12 characters max",
+                },
+                validate: (value) => {
+                  if (watch("password") !== value) {
+                    return "Passwords and Confirm password not equals";
+                  }
+                  return true;
+                },
+              })}
             />
+            {errors.confirmPassword && <p>{errors.confirmPassword.message}</p>}
           </div>
           <button className="btn">Update</button>
         </form>
