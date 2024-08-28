@@ -13,6 +13,7 @@ const notFound = require("./middleware/errorMiddleware.js");
 //routes
 const authRouter = require("./routes/auth.routes.js");
 const usersRouter = require("./routes/users.routes.js");
+const postsRouter = require("./routes/post.routes.js");
 
 //cookie-parser
 app.use(cookieParser());
@@ -37,6 +38,7 @@ if (process.env.NODE_ENV === "test") {
 }
 app.use("/api/auth", authRouter);
 app.use("/api/users", usersRouter);
+app.use("/api/posts", postsRouter);
 app.use(notFound);
 
 module.exports = app;

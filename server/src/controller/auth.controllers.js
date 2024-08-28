@@ -42,12 +42,12 @@ const authSignin = async (req, res) => {
       user === null ? false : await comparePass(password, user.password);
     if (!checkPass) return res.status(400).json(["Invalid credentials"]);
     //accessToken
-    const accessToken = await signToken({ id: user._id }, "30m");
+    const accessToken = await signToken({ id: user._id }, "60m");
     //set cookie with accesstoken
-    res.cookie("accessToken", accessToken, { maxAge: 1000 * 60 * 30 });
+    res.cookie("accessToken", accessToken, { maxAge: 1000 * 60 * 60 });
     //-select password
     user.set("password", undefined);
-    /* res */
+    /* respuesta */
     return res.status(200).json(user);
   } catch (error) {
     return res.status(500).json([error.message]);

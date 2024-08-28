@@ -1,6 +1,5 @@
 const { config } = require("dotenv");
 config();
-
 module.exports = {
   PORT: process.env.PORT,
   DB_CONN: process.env.DB_CONN,
@@ -8,4 +7,5 @@ module.exports = {
   NODEMAILER_EMAIL: process.env.NODEMAILER_EMAIL,
   NODEMAILER_EMAIL_PASS: process.env.NODEMAILER_EMAIL_PASS,
   URL_ORIGIN: process.env.URL_ORIGIN,
+  THUMBNAIL_SIZE: process.env.THUMBNAIL_SIZE,
 };

@@ -24,7 +24,7 @@ const { tokenValidate } = require("../validators/generals.validate.js");
 authRouter.post("/signup", signupValidate, authSignup);
 authRouter.post("/signin", signinValidate, authSignin);
 authRouter.post("/forgot-password", forgotValidate, authForgotPassword);
-/* authRouter.post("/reset-password/:forgotToken", resetValidate, authResetPassword); */
+authRouter.post("/reset-password/:forgotToken", resetValidate, authResetPassword);
 //get
 authRouter.get("/signout", tokenValidate, authRequire, authSignout);
 authRouter.get("/signin-check", tokenValidate, authRequire, authSigninCheck);
