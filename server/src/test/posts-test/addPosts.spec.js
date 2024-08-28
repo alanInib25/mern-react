@@ -18,7 +18,6 @@ const {
   saveUser,
   loginUserTrue,
   logoutUser,
-  getThumbnailsServer,
   deleteThumbnailsServer,
   getTokenValue,
   saveUsers,
@@ -202,7 +201,7 @@ describe("Add posts with empty requires fields", () => {
 });
 
 //validaciones
-describe.only("Add posts with invalid data", () => {
+describe("Add posts with invalid data", () => {
   beforeAll(async () => {
     await User.deleteMany();
     await saveUser(data.user);
@@ -235,7 +234,7 @@ describe.only("Add posts with invalid data", () => {
       )
       .expect(400);
     expect(res.body).toEqual(
-      expect.arraContaining(["Invalid description, 200 character max."])
+      expect.arrayContaining(["Invalid description, 200 character max."])
     );
   });
 
@@ -254,7 +253,7 @@ describe.only("Add posts with invalid data", () => {
       )
       .expect(400);
     expect(res.body).toEqual(
-      expect.arraContaining(["Upload file less than 2mb. (2000000 bytes)"])
+      expect.arrayContaining(["Upload file less than 2mb. (2000000 bytes)"])
     );
   });
 
@@ -269,9 +268,8 @@ describe.only("Add posts with invalid data", () => {
       )
       .attach("thumbnail", join(__dirname, "..", "fixture/posts/", "test.txt"))
       .expect(400);
-      expect(res.body).toEqual(
-        expect.arraContaining(["Format thumbnail must be .jpg, .png, .jpeg"])
-      );
-    console.log(res.body);
+    expect(res.body).toEqual(
+      expect.arrayContaining(["Format thumbnail must be .jpg, .png, .jpeg"])
+    );
   });
 });
