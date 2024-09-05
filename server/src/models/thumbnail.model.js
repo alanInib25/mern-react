@@ -1,4 +1,4 @@
-const { Schema, model, models } = require("mongoose");
+const { Schema, model } = require("mongoose");
 
 const thumbnailSchema = new Schema(
   {
@@ -8,6 +8,10 @@ const thumbnailSchema = new Schema(
     name: {
       type: String,
     },
+    creator: {
+      type: Schema.Types.ObjectId,
+      ref: "User"
+    }
   },
   { timestamps: true, versionKey: false }
 );

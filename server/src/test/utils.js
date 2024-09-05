@@ -35,10 +35,15 @@ const data = {
       email: "test4@algo.cl",
       password: "asdasd",
     },
+    {
+      name: "test5",
+      email: "test5@algo.cl",
+      password: "asdasd",
+    },
   ],
   user: {
-    name: "test5",
-    email: "test5@algo.cl",
+    name: "test6",
+    email: "test6@algo.cl",
     password: "asdasd",
   },
   notUsersValues: {
@@ -78,7 +83,24 @@ const data = {
   ],
 };
 
-const saveUser = async (user) => {
+const registerUsers = async (users) => {
+  try {
+    for (let i = 0; i < users.length; i++) {
+      const res = await api
+        .post("/api/auth/signup")
+        .set("Accept", "application/json")
+        .send(users[i])
+        .expect("Content-Type", /json/)
+        .expect(200);
+      expect(res.body).toHaveProperty("_id");
+    }
+  } catch (error) {
+    console.log(error);
+    return error;
+  }
+};
+
+const registerUser = async (user) => {
   try {
     const res = await api
       .post("/api/auth/signup")
@@ -187,10 +209,10 @@ const getAdd = async ({ id, path, token, statusCode }) => {
 const getAddsPosts = async ({ data, path, token, statusCode }) => {
   try {
     const res = await Post.find().populate("thumbnail");
-    expect(res).toHaveLength(data.length)
+    expect(res).toHaveLength(data.length);
     return res;
   } catch (error) {
-    console.log(error); 
+    console.log(error);
     return error;
   }
 };
@@ -202,9 +224,16 @@ const getTokenValue = (header) => {
   return token;
 };
 
+//Id object mongo no registrado
+const noRegisterId = "5e1a0651741b255ddda996c4";
+
+//Id object mongo no valido
+const invalidId = "5e1a0651741b255ddda996c4123abc";
+
 module.exports = {
   data,
-  saveUser,
+  registerUser,
+  registerUsers,
   loginUserTrue,
   loginUserFalse,
   logoutUser,
@@ -213,4 +242,6 @@ module.exports = {
   getAdd,
   getAddsPosts,
   getTokenValue,
+  noRegisterId,
+  invalidId,
 };

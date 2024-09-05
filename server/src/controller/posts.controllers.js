@@ -38,26 +38,30 @@ const addPost = async (req, res) => {
     //ubicacion de thumbnail
     await thumbnail.mv(join(__dirname, "..", "uploads/posts", nameFile));
 
-    //guarda thumbnail
+    //guarda thumbnail en bd
     const newThumbnail = await new Thumbnail({
       thumbnail: nameFile,
       name: thumbnail.name,
+      creator: req.userId,
     }).save();
 
-    //guarda post
-    const newPost = await new Post({
+    //guarda post en bd
+    const { _id: newPostId } = await new Post({
       description,
       thumbnail: nameFile,
       author: req.userId,
       thumbnail: newThumbnail._id,
     }).save();
 
-    //incrementa número de posts en usuario
+    //incrementa número de posts en usuario en bd
     const user = await User.findById(req.userId);
     user.posts = user.posts + 1;
     await user.save();
 
     //respuesta
+    const newPost = await Post.findById(newPostId)
+      .populate("thumbnail")
+      .populate({ path: "author", select: "-password" });
     return res.status(200).json(newPost);
   } catch (error) {
     return res.status(500).json([error.message]);
@@ -72,6 +76,7 @@ const getPosts = async (req, res) => {
         path: "author",
         select: "-password",
       })
+      .populate({ path: "thumbnail" })
       .sort({ createdAt: -1 });
 
     return res.status(200).json(posts);
@@ -86,10 +91,14 @@ const getPost = async (req, res) => {
     const { id: postId } = req.params;
     //valida postId
     if (!postId) return res.status(400).json(["Post unabailable"]);
-    const post = await Post.findById({ _id: postId }).populate({
-      path: "author",
-      select: "-password",
-    });
+    const post = await Post.findById(postId)
+      .populate({
+        path: "author",
+        select: "-password",
+      })
+      .populate({
+        path: "thumbnail",
+      });
     if (!post) return res.status(400).json(["Post not found"]);
     return res.status(200).json(post);
   } catch (error) {
@@ -101,16 +110,20 @@ const getPost = async (req, res) => {
 const deletePost = async (req, res) => {
   try {
     const { post } = req;
-    //elimina archivo del servidor
-    await unlink(join(__dirname, "..", "uploads/posts", post.thumbnail));
-    //elimina post desde base de datos
+    //elimina thumbnail del servidor
+    await unlink(
+      join(__dirname, "..", "uploads/posts", post.thumbnail.thumbnail)
+    );
+    //elimina thumbail de db
+    await Thumbnail.findByIdAndDelete(post.thumbnail._id);
+    //elimina post de db
     await Post.findByIdAndDelete(post._id);
     //descuenta numero de post de usuario
     const user = await User.findById(req.userId);
     user.posts = user.posts - 1;
     await user.save();
     //respuesta
-    return res.status(200).json([`Post ${post._id} deleted successfull`]);
+    return res.status(200).json([`Post deleted successfull`]);
   } catch (error) {
     return res.status(500).json([error.message]);
   }
@@ -122,10 +135,11 @@ const updatePost = async (req, res) => {
   try {
     const { post } = req;
     const { description } = req.body;
+
     //Actualizacion de posts sin thumbnail nuevo
     if (!req.files) {
       post.description = description;
-      postsUpdated = await post.save();
+      await post.save();
     } else {
       //si trae nueva imagen
       const { thumbnail } = req.files;
@@ -135,20 +149,34 @@ const updatePost = async (req, res) => {
           `Upload file less 
           than ${THUMBNAIL_SIZE[0]}mb. (${THUMBNAIL_SIZE} bytes)`,
         ]);
-      //Elimina thumbnail anterior
-      await unlink(join(__dirname, "..", "/uploads/posts", post.thumbnail));
-      //generar nuevo nombre para el nuev thumbnail
+
+      //Elimina desde server el thumbnail anterior
+      await unlink(
+        join(__dirname, "..", "/uploads/posts", post.thumbnail.thumbnail)
+      );
+
+      //generar nuevo nombre para el nuevo thumbnail
       const extfile = thumbnail.name.split(".")[1];
       const nameFile = uuidv4() + "." + extfile;
-      //ubicacion de thumbnail
+
+      //ubicacion de nuevo thumbnail
       await thumbnail.mv(join(__dirname, "..", "uploads/posts", nameFile));
-      //actualiza propiedad description y thumbnail de documento post
+
+      //guarda thumbnail en bd
+      await Thumbnail.findByIdAndUpdate(post.thumbnail, {
+        thumbnail: nameFile,
+        name: thumbnail.name,
+      });
+      //actualiza propiedad description de documento post
       post.description = description;
-      post.thumbnail = nameFile;
-      postsUpdated = await post.save();
+      await post.save();
     }
+
     //respuesta
-    return res.status(200).json([postsUpdated]);
+    postsUpdated = await Post.findById(post._id)
+      .populate({ path: "author", select: "-password" })
+      .populate("thumbnail");
+    return res.status(200).json(postsUpdated);
   } catch (error) {
     return res.status(500).json([error.message]);
   }

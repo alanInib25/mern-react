@@ -21,7 +21,7 @@ afterAll(async () => {
 });
 
 //valid requires fields values
-describe("Given valid required fields", () => {
+describe.only("Signup user", () => {
   beforeEach(async () => await User.deleteMany());
   //add user
   test("should register a user", async () => {
@@ -37,8 +37,8 @@ describe("Given valid required fields", () => {
       .expect("set-cookie", /accessToken/);
   });
 
-  //add users
-  test.each(data.users)("Should register users", async (user) => {
+  //Agrega mas usuarios
+  test.each(data.users)("Should register users: $name", async (user) => {
     const res = await api.post("/api/auth/signup").send(user).expect(200);
     expect(res.body).toHaveProperty("_id");
     expect(res.body).not.toHaveProperty("password");

@@ -3,7 +3,7 @@ const { check } = require("express-validator");
 //controlador de validacion
 const validateResult = require("../utils/handleValidators.js");
 
-const addPostValidate = [
+const postValidate = [
   check("description", "Invalid description, 200 character max.")
     .notEmpty()
     .isString()
@@ -11,4 +11,4 @@ const addPostValidate = [
   validateResult,
 ];
 
-module.exports = addPostValidate;
+module.exports = postValidate;
