@@ -7,6 +7,8 @@ const { v4: uuid } = require("uuid");
 const fsPromises = require("fs").promises;
 //path
 const path = require("path");
+//thumbnail size
+const { THUMBNAIL_SIZE } = require("../utils/handleConfig.js");
 
 //get user profile
 const getUserProfile = async (req, res) => {
@@ -63,7 +65,7 @@ const updateUser = async (req, res) => {
     const userUpdated = await User.findByIdAndUpdate(
       req.userId,
       { name, email, password: hash },
-      { new: true}
+      { new: true }
     );
     //-select password
     userUpdated.set("password", undefined);
@@ -78,20 +80,39 @@ const updateAvatar = async (req, res) => {
   try {
     //valida avatar
     if (!req.files) return res.status(400).json(["Not Image"]);
-    //usuario
+    //obtiene avatar
+    const { avatar } = req.files;
+
+    //valida tamaño del avatar
+    if (avatar.size > THUMBNAIL_SIZE)
+      return res
+        .status(400)
+        .json([
+          `Upload file less than ${THUMBNAIL_SIZE[0]}mb. (${THUMBNAIL_SIZE} bytes)`,
+        ]);
+
+    //valida extencion de avatar
+    const extFile = avatar.name.split(".")[1];
+    if (extFile !== "jpg" && extFile !== "png" && extFile !== "jpeg")
+      return res
+        .status(400)
+        .json(["Format thumbnail must be .jpg, .png, .jpeg"]);
+
+    //busca el usuario
     const user = await User.findById(req.userId, "-password").exec();
-    //valida avatar anterior
+    //valida existencia de avatar anterior, si existe lo elimina
     if (user.avatar)
       await fsPromises.unlink(
-        path.join(__dirname, "..", "/uploads", user.avatar)
+        path.join(__dirname, "..", "/uploads/avatar", user.avatar)
       );
-    //avatar
-    const { avatar } = req.files;
-    const extFile = avatar.name.split(".")[1];
+
+    //Genera nombre de avatar
     const avatarName = uuid() + "." + extFile;
     //ubica nuevo avatar
-    await avatar.mv(path.join(__dirname, "..", "/uploads", avatarName));
+    await avatar.mv(path.join(__dirname, "..", "/uploads/avatar", avatarName));
+    //setea nombre de avatar en documento
     user.avatar = avatarName;
+    //guarda la nueva informacion
     const userUpdated = await user.save();
     return res.status(200).json(userUpdated.avatar);
   } catch (error) {

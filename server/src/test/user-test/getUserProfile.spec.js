@@ -1,6 +1,12 @@
 const mongoose = require("mongoose");
 //DUMYS
-const { data, saveUser, loginUser } = require("../utils.js");
+const {
+  data,
+  loginUserTrue,
+  getTokenValue,
+  registerUser,
+  registerUsers
+} = require("../utils.js");
 //model
 const User = require("../../models/users.model.js");
 //app
@@ -8,6 +14,8 @@ const app = require("../../app.js");
 //supertest
 const request = require("supertest");
 const api = request(app);
+let token;
+const nameToken = "accessToken";
 
 beforeAll(async () => {
   mongoose
@@ -21,23 +29,22 @@ afterAll(async () => {
   mongoose.connection.close();
 });
 
-let token;
-describe("Get profile user data with authentication", () => {
-  beforeEach(async () => {
-    await saveUser(data.user);
-    const res = await api
-      .post("/api/auth/signin")
-      .send({ email: data.user.email, password: data.user.password })
-      .expect(200)
-      .expect("Content-Type", /json/)
-      .expect("set-cookie", /accessToken/);
-    token = res.headers["set-cookie"][0].split(";")[0].split("=")[1];
+//Validacion get user profile data
+describe("Get user profile data", () => {
+  beforeAll(async () => {
+    await User.deleteMany();
+    await registerUser(data.user);
+    const loginRes = await loginUserTrue(data.user);
+    token = getTokenValue(loginRes.headers);
   });
 
-  test("should return profile information", async () => {
+/*   beforeAll(async () => {
+    await User.deleteMany();
+  }); */
+  test("should get user profile data", async () => {
     const res = await api
       .get("/api/users/profile")
-      .set("Cookie", [`accessToken=${token}`])
+      .set("Cookie", [`${nameToken}=${token}`])
       .send()
       .expect(200);
     expect(res.body).toHaveProperty("_id");
@@ -47,6 +54,30 @@ describe("Get profile user data with authentication", () => {
   });
 });
 
+//Validacion get user profile data sin informacion del profile
+describe("Get user profile data no user", () => {
+  beforeAll(async () => {
+    await User.deleteMany();
+    await registerUser(data.user);
+    const loginRes = await loginUserTrue(data.user);
+    token = getTokenValue(loginRes.headers);
+    //borrando los usuarios despues de crearlos, y loguearlos
+    //logré conseguir la prueba de mensaje User Error (cuando no hay data de usuario profile)
+    await User.deleteMany();
+
+  });
+
+  test("should return 'User Error' message when get user profile data inexistent", async () => {
+    const res = await api
+      .get("/api/users/profile")
+      .set("Cookie", [`${nameToken}=${token}`])
+      .send()
+      .expect(400);
+      expect(res.body).toEqual(expect.arrayContaining(["User Error"]))
+  });
+});
+
+//validaciones sin token
 describe("Get profile user withouth authentication (without token)", () => {
   test("should not return profile information", async () => {
     const res = await api

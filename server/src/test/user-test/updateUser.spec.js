@@ -6,13 +6,16 @@ const {
   data,
   loginUserTrue,
   loginUserFalse,
-  saveUser,
-  saveUsers,
+  registerUser,
+  registerUsers,
+  getTokenValue,
 } = require("../utils.js");
 const request = require("supertest");
 const app = require("../../app.js");
 const api = request(app);
 let token;
+let userLogged;
+let tokenName = "accessToken";
 
 beforeAll(() => {
   mongoose
@@ -25,93 +28,73 @@ afterAll(async () => {
   await mongoose.connection.close();
 });
 
-//actualiza usuario
-describe("Update user data with authentication", () => {
+//Validacion actualizacion usuario
+describe("Update user data", () => {
   beforeEach(async () => {
     await User.deleteMany();
-    await saveUser(data.user);
+    await registerUser(data.user);
     //login
-    const res = await api
-      .post("/api/auth/signin")
-      .send({ email: data.user.email, password: data.user.password })
-      .expect(200)
-      .expect("Content-Type", /json/)
-      .expect("set-cookie", /accessToken/);
-    token = res.headers["set-cookie"][0].split(";")[0].split("=")[1];
+    const loginRes = await loginUserTrue(data.user);
+    token = getTokenValue(loginRes.headers);
+    userLogged = loginRes.body;
   });
 
-  test("Should return updated user data same email", async () => {
+  test("Should return updated user data with same email", async () => {
     const res = await api
       .patch(`/api/users/update`)
-      .set("Cookie", [`accessToken=${token}`])
-      .send({
-        name: data.userUpdate.name,
-        email: data.userUpdate.email,
-        password: data.userUpdate.password,
-        confirmPassword: data.userUpdate.confirmPassword,
-      })
+      .set("Cookie", [`${tokenName}=${token}`])
+      .set("Accept", "application/json")
+      .send({ ...data.userUpdate, email: userLogged.email })
+      .expect(200);
+    expect(res.body).toHaveProperty("_id");
+    expect(res.body).toHaveProperty("name", data.userUpdate.name);
+    expect(res.body).toHaveProperty("email", userLogged.email);
+    expect(res.body).not.toHaveProperty("password");
+    //login (para confirmar usuario editado)
+    await loginUserTrue({...data.userUpdate, email: userLogged.email});
+  });
+
+  test("Should return updated user data with other email", async () => {
+    const res = await api
+      .patch(`/api/users/update`)
+      .set("Cookie", [`${tokenName}=${token}`])
+      .send(data.userUpdate)
       .expect(200);
     expect(res.body).toHaveProperty("_id");
     expect(res.body).toHaveProperty("name", data.userUpdate.name);
     expect(res.body).toHaveProperty("email", data.userUpdate.email);
     expect(res.body).not.toHaveProperty("password");
     //login (para confirmar usuario editado)
-    await loginUserTrue({
-      email: data.userUpdate.email,
-      password: data.userUpdate.password,
-    });
-  });
-
-  test("Should return updated user data with other email", async () => {
-    const res = await api
-      .patch(`/api/users/update`)
-      .set("Cookie", [`accessToken=${token}`])
-      .send({
-        name: data.userUpdate.name,
-        email: "otherEmail@gmail.com",
-        password: data.userUpdate.password,
-        confirmPassword: data.userUpdate.confirmPassword,
-      })
-      .expect(200);
-    expect(res.body).toHaveProperty("_id");
-    expect(res.body).toHaveProperty("name", data.userUpdate.name);
-    expect(res.body).toHaveProperty("email", "otherEmail@gmail.com");
-    expect(res.body).not.toHaveProperty("password");
-    //login (para confirmar usuario editado)
-    await loginUserTrue({
-      email: "otherEmail@gmail.com",
-      password: data.userUpdate.password,
-    });
+    await loginUserTrue(data.userUpdate);
 
     //login (para confirmar usuario email original)
     await loginUserFalse({
-      body: { email: data.user.email, password: data.userUpdate.password },
+      body: { email: userLogged.email, password: data.userUpdate.password },
       statusCode: 400,
       messageExpect: "Invalid credentials",
     });
   });
 });
 
-//con logueo pero campos vacios
+//Validacion actualizacion de usuario con campos vacios
 describe("Update user data with empty requires fields", () => {
-  beforeEach(async () => {
+  beforeAll(async () => {
     await User.deleteMany();
-    await saveUser(data.user);
+    await registerUser(data.user);
     //login
-    const res = await api
-      .post("/api/auth/signin")
-      .send({ email: data.user.email, password: data.user.password })
-      .expect(200)
-      .expect("Content-Type", /json/)
-      .expect("set-cookie", /accessToken/);
-    token = res.headers["set-cookie"][0].split(";")[0].split("=")[1];
+    const loginRes = await loginUserTrue(data.user);
+    token = getTokenValue(loginRes.headers);
+  });
+
+  afterAll(async () => {
+    await User.deleteMany();
   });
 
   test("Should return Invalid Name, Invalid Email, Invalid Password between 6 and 12 charact, Invalid Confirm Password between 6 and 12 charact with all empty data", async () => {
     const res = await api
       .patch("/api/users/update")
       .set("accept", /json/)
-      .set("Cookie", [`accessToken=${token}`])
+      .set("Cookie", [`${tokenName}=${token}`])
       .send({})
       .expect(400);
     expect(res.body).toEqual(
@@ -125,7 +108,7 @@ describe("Update user data with empty requires fields", () => {
     const res = await api
       .patch("/api/users/update")
       .set("accept", /json/)
-      .set("Cookie", [`accessToken=${token}`])
+      .set("Cookie", [`${tokenName}=${token}`])
       .send({ name: "", email: "", password: "", confirmPassword: "" })
       .expect(400);
     expect(res.body).toEqual(
@@ -139,7 +122,7 @@ describe("Update user data with empty requires fields", () => {
     const res = await api
       .patch("/api/users/update")
       .set("accept", /json/)
-      .set("Cookie", [`accessToken=${token}`])
+      .set("Cookie", [`${tokenName}=${token}`])
       .send({
         name: "",
         email: data.userUpdate.email,
@@ -171,7 +154,7 @@ describe("Update user data with empty requires fields", () => {
     const res = await api
       .patch("/api/users/update")
       .set("accept", /json/)
-      .set("Cookie", [`accessToken=${token}`])
+      .set("Cookie", [`${tokenName}=${token}`])
       .send({
         name: data.userUpdate.name,
         email: "",
@@ -194,7 +177,7 @@ describe("Update user data with empty requires fields", () => {
     const res = await api
       .patch("/api/users/update")
       .set("accept", /json/)
-      .set("Cookie", [`accessToken=${token}`])
+      .set("Cookie", [`${tokenName}=${token}`])
       .send({
         name: data.userUpdate.name,
         email: data.userUpdate.email,
@@ -217,7 +200,7 @@ describe("Update user data with empty requires fields", () => {
     const res = await api
       .patch("/api/users/update")
       .set("accept", /json/)
-      .set("Cookie", [`accessToken=${token}`])
+      .set("Cookie", [`${tokenName}=${token}`])
       .send({
         name: data.userUpdate.name,
         email: data.userUpdate.email,
@@ -248,27 +231,22 @@ describe("Update user data with empty requires fields", () => {
   });
 });
 
-//con email ya registrado
-describe("Update user data update email with value already registered", () => {
+//Validacion update uer con email ya registrado
+describe("Update user data with email value already registered", () => {
   beforeEach(async () => {
     await User.deleteMany();
-    await saveUsers(data.users);
-    await saveUser(data.user);
+    await registerUsers(data.users);
+    await registerUser(data.user);
     //login
-    const res = await api
-      .post("/api/auth/signin")
-      .send({ email: data.user.email, password: data.user.password })
-      .expect(200)
-      .expect("Content-Type", /json/)
-      .expect("set-cookie", /accessToken/);
-    token = res.headers["set-cookie"][0].split(";")[0].split("=")[1];
+    const loginRes = await loginUserTrue(data.user);
+    token = getTokenValue(loginRes.headers);
   });
 
-  test("Should return Email exist message with send email already registered", async () => {
+  test("Should return 'Email exist' message with send email already registered", async () => {
     const res = await api
       .patch("/api/users/update")
       .set("Accept", /json/)
-      .set("Cookie", [`accessToken=${token}`])
+      .set("Cookie", [`${tokenName}=${token}`])
       .send({
         name: "other_name",
         email: data.users[0].email,
@@ -280,26 +258,21 @@ describe("Update user data update email with value already registered", () => {
   });
 });
 
-//con logueo pero campos no validos
+//Validacion update user campos no validos
 describe("Update user data with invalid data", () => {
   beforeEach(async () => {
     await User.deleteMany();
-    await saveUser(data.user);
+    await registerUser(data.user);
     //login
-    const res = await api
-      .post("/api/auth/signin")
-      .send({ email: data.user.email, password: data.user.password })
-      .expect(200)
-      .expect("Content-Type", /json/)
-      .expect("set-cookie", /accessToken/);
-    token = res.headers["set-cookie"][0].split(";")[0].split("=")[1];
+    const loginRes = await loginUserTrue(data.user);
+    token = getTokenValue(loginRes.headers);
   });
 
-  test("Should return Invalid Email message with send invalid email value", async () => {
+  test("Should return 'Invalid Email' message with send invalid email value", async () => {
     const res = await api
       .patch("/api/users/update")
       .set("accept", /json/)
-      .set("Cookie", [`accessToken=${token}`])
+      .set("Cookie", [`${tokenName}=${token}`])
       .send({
         name: data.userUpdate.name,
         email: ".algo@gmail.com",
@@ -309,72 +282,60 @@ describe("Update user data with invalid data", () => {
       .expect(400);
     expect(res.body).toEqual(expect.arrayContaining(["Invalid Email"]));
     //login (para confirmar usuario original)
-    await loginUserTrue({
-      email: data.user.email,
-      password: data.user.password,
-    }).then((res) => {
-      //confirma que no cambio actualizó nombre de usuario
-      expect(res.body.name).not.toEqual(data.userUpdate.name);
+    await loginUserTrue(data.user);
+    //login para confirmar no actualizacion
+    await loginUserFalse({
+      body: { email: ".algo@gmail.com", password: data.userUpdate.password },
+      statusCode: 400,
+      messageExpect: "Invalid Email",
     });
   });
 
-  test("Should return Invalid Password between 6 and 12 charact message with send password 5 characts", async () => {
+  test("Should return 'Invalid Password between 6 and 12 charact' message with send password 5 characts", async () => {
     const res = await api
       .patch("/api/users/update")
       .set("accept", /json/)
-      .set("Cookie", [`accessToken=${token}`])
-      .send({
-        name: data.userUpdate.name,
-        email: data.userUpdate.email,
-        password: "12345",
-        confirmPassword: data.userUpdate.confirmPassword,
-      })
+      .set("Cookie", [`${tokenName}=${token}`])
+      .send({ ...data.userUpdate, password: "12345" })
       .expect(400);
     expect(res.body).toEqual(
       expect.arrayContaining(["Invalid Password between 6 and 12 charact"])
     );
-
     //login (para confirmar usuario original)
-    await loginUserTrue({
-      email: data.user.email,
-      password: data.user.password,
-    }).then((res) => {
-      //confirma que no cambio actualizó nombre de uuario
-      expect(res.body.name).not.toEqual(data.userUpdate.name);
+    await loginUserTrue(data.user);
+    //login para confirmar no actualizacion
+    await loginUserFalse({
+      body: { ...data.userUpdate, password: "12345" },
+      statusCode: 400,
+      messageExpect: "Invalid Password between 6 and 12 charact",
     });
   });
 
-  test("Should return Invalid Password between 6 and 12 charact message with send password 13 characts", async () => {
+  test("Should return 'Invalid Password between 6 and 12 charact' message with send password 13 characts", async () => {
     const res = await api
       .patch("/api/users/update")
       .set("accept", /json/)
-      .set("Cookie", [`accessToken=${token}`])
-      .send({
-        name: data.userUpdate.name,
-        email: data.userUpdate.email,
-        password: "1234567890123",
-        confirmPassword: data.userUpdate.confirmPassword,
-      })
+      .set("Cookie", [`${tokenName}=${token}`])
+      .send({ ...data.userUpdate, password: "1234567890123" })
       .expect(400);
     expect(res.body).toEqual(
       expect.arrayContaining(["Invalid Password between 6 and 12 charact"])
     );
-
     //login (para confirmar usuario original)
-    await loginUserTrue({
-      email: data.user.email,
-      password: data.user.password,
-    }).then((res) => {
-      //confirma que no cambio actualizó nombre de uuario
-      expect(res.body.name).not.toEqual(data.userUpdate.name);
+    await loginUserTrue(data.user);
+    //login para confirmar no actualizacion
+    await loginUserFalse({
+      body: { ...data.userUpdate, password: "1234567890123" },
+      statusCode: 400,
+      messageExpect: "Invalid Password between 6 and 12 charact",
     });
   });
 
-  test("Should return Passwords not equals message with send password and confirm password not equals", async () => {
+  test("Should return 'Passwords not equals' message with send password and confirm password not equals", async () => {
     const res = await api
       .patch("/api/users/update")
       .set("accept", /json/)
-      .set("Cookie", [`accessToken=${token}`])
+      .set("Cookie", [`${tokenName}=${token}`])
       .send({
         name: data.userUpdate.name,
         email: data.userUpdate.email,
@@ -385,36 +346,27 @@ describe("Update user data with invalid data", () => {
     expect(res.body).toEqual(expect.arrayContaining(["Passwords not equals"]));
 
     //login (para confirmar usuario original)
-    await loginUserTrue({
-      email: data.user.email,
-      password: data.user.password,
-    }).then((res) => {
-      //confirma que no cambio actualizó nombre de uuario
-      expect(res.body.name).not.toEqual(data.userUpdate.name);
-    });
+    await loginUserTrue(data.user);
   });
 });
 
-//sin logueo
-describe("Update user data withouth authentication", () => {
+//validacion actualizacion de usuario sin token y con token mal formato
+describe("Update user data with bad format token", () => {
   beforeEach(async () => {
     await User.deleteMany();
-    await saveUser(data.user);
+    await registerUser(data.user);
+    //login
+    const loginRes = await loginUserTrue(data.user);
+    token = getTokenValue(loginRes.headers);
   });
 
-  test("Should return Invalid Token message", async () => {
-    const res = await api
-      .patch(`/api/users/update`)
-      .send({
-        name: data.userUpdate.name,
-        email: data.userUpdate.email,
-        password: data.userUpdate.password,
-        confirmPassword: data.userUpdate.confirmPassword,
-      })
-      .expect(400);
-    expect(res.body).toEqual(expect.arrayContaining(["Invalid Token"]));
+  test("should not return user information", async () => {
+    const res = await api.get(`/api/users/`).send(data.userUpdate).expect(400);
+    expect(res.body).not.toHaveProperty("_id");
     expect(res.body).not.toHaveProperty("name", data.userUpdate.name);
     expect(res.body).not.toHaveProperty("email", data.userUpdate.email);
+    expect(res.body).toEqual(expect.arrayContaining(["Invalid Token"]));
+
     //login (para confirmar usuario no editado)
     await loginUserFalse({
       body: {
@@ -426,38 +378,14 @@ describe("Update user data withouth authentication", () => {
     });
 
     //login (para confirmar usuario original)
-    await loginUserTrue({
-      email: data.user.email,
-      password: data.user.password,
-    });
-  });
-});
-
-//logueado pero sin token
-describe("Update user data without token", () => {
-  beforeEach(async () => {
-    await User.deleteMany();
-    await saveUser(data.user);
-    //login
-    const res = await api
-      .post("/api/auth/signin")
-      .send({ email: data.user.email, password: data.user.password })
-      .expect(200)
-      .expect("Content-Type", /json/)
-      .expect("set-cookie", /accessToken/);
-    token = res.headers["set-cookie"][0].split(";")[0].split("=")[1];
+    await loginUserTrue(data.user);
   });
 
   test("should not return user information", async () => {
     const res = await api
       .get(`/api/users/`)
       .set("Cookie", "")
-      .send({
-        name: data.userUpdate.name,
-        email: data.userUpdate.email,
-        password: data.userUpdate.password,
-        confirmPassword: data.userUpdate.confirmPassword,
-      })
+      .send(data.userUpdate)
       .expect(400);
     expect(res.body).not.toHaveProperty("_id");
     expect(res.body).not.toHaveProperty("name", data.userUpdate.name);
@@ -475,38 +403,14 @@ describe("Update user data without token", () => {
     });
 
     //login (para confirmar usuario original)
-    await loginUserTrue({
-      email: data.user.email,
-      password: data.user.password,
-    });
-  });
-});
-
-//logueado pero token mal formato
-describe("Update user data with bad format token", () => {
-  beforeEach(async () => {
-    await User.deleteMany();
-    await saveUser(data.user);
-    //login
-    const res = await api
-      .post("/api/auth/signin")
-      .send({ email: data.user.email, password: data.user.password })
-      .expect(200)
-      .expect("Content-Type", /json/)
-      .expect("set-cookie", /accessToken/);
-    token = res.headers["set-cookie"][0].split(";")[0].split("=")[1];
+    await loginUserTrue(data.user);
   });
 
   test("should return Invalid Token message without token value", async () => {
     const res = await api
       .patch(`/api/users/update`)
-      .set("Cookie", [`accessToken=`])
-      .send({
-        name: data.userUpdate.name,
-        email: data.userUpdate.email,
-        password: data.userUpdate.password,
-        confirmPassword: data.userUpdate.confirmPassword,
-      })
+      .set("Cookie", [`${tokenName}=`])
+      .send(data.userUpdate)
       .expect(400);
     expect(res.body).toEqual(expect.arrayContaining(["Invalid Token"]));
 
@@ -521,23 +425,14 @@ describe("Update user data with bad format token", () => {
     });
 
     //login (para confirmar usuario original)
-    await loginUserTrue({
-      email: data.user.email,
-      password: data.user.password,
-    });
+    await loginUserTrue(data.user);
   });
 
   test("should return Invalid Token message with other token name", async () => {
-    const { _id } = await User.findOne({ email: data.user.email });
     const res = await api
       .patch(`/api/users/update`)
       .set("Cookie", [`access=${token}`])
-      .send({
-        name: data.userUpdate.name,
-        email: data.userUpdate.email,
-        password: data.userUpdate.password,
-        confirmPassword: data.userUpdate.confirmPassword,
-      })
+      .send(data.userUpdate)
       .expect(400);
     expect(res.body).toEqual(expect.arrayContaining(["Invalid Token"]));
 
@@ -552,22 +447,14 @@ describe("Update user data with bad format token", () => {
     });
 
     //login (para confirmar usuario original)
-    await loginUserTrue({
-      email: data.user.email,
-      password: data.user.password,
-    });
+    await loginUserTrue(data.user);
   });
 
   test("should return Invalid Token message with bad format token", async () => {
     const res = await api
       .patch(`/api/users/update`)
-      .set("Cookie", [`accessToken=${token + "asdasdAlan"}`])
-      .send({
-        name: data.userUpdate.name,
-        email: data.userUpdate.email,
-        password: data.userUpdate.password,
-        confirmPassword: data.userUpdate.confirmPassword,
-      })
+      .set("Cookie", [`${tokenName}=${token + "asdasdAlan"}`])
+      .send(data.userUpdate)
       .expect(404);
     expect(res.body).toEqual(expect.arrayContaining(["invalid signature"]));
 
@@ -582,9 +469,6 @@ describe("Update user data with bad format token", () => {
     });
 
     //login (para confirmar usuario original)
-    await loginUserTrue({
-      email: data.user.email,
-      password: data.user.password,
-    });
+    await loginUserTrue(data.user);
   });
 });

@@ -602,7 +602,7 @@ describe("Update post by id with bad format id", () => {
 });
 
 //Validacion Solicitud get posts por id, token mal formato y vacio
-describe("Get post with authentication but empty and bad format token", () => {
+describe("Update post with empty and bad format token", () => {
   beforeAll(async () => {
     await User.deleteMany();
     await registerUser(data.user);
@@ -694,7 +694,7 @@ describe("Get post with authentication but empty and bad format token", () => {
 });
 
 //Validacion actualizar post no registrado
-describe("Get post not registered", () => {
+describe("Update post not registered", () => {
   beforeAll(async () => {
     await User.deleteMany();
     await registerUser(data.user);

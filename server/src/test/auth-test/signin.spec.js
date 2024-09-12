@@ -1,6 +1,6 @@
 const mongoose = require("mongoose");
 //dummys
-const { data, saveUser } = require("../utils.js");
+const { data, registerUser, registerUsers } = require("../utils.js");
 //model
 const User = require("../../models/users.model.js");
 //app
@@ -17,18 +17,23 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await User.deleteMany()
+  await User.deleteMany();
   mongoose.connection.close();
 });
 
-//valid requires fields values
-describe("Given valid required fields", () => {
+//Signin de usuario
+describe("Signin user", () => {
   beforeEach(async () => {
     await User.deleteMany();
-    await saveUser(data.user);
+    await registerUser(data.user);
+    await registerUsers(data.users);
   });
 
-  test("should login user", async () => {
+  afterAll(async () => {
+    await User.deleteMany();
+  });
+
+  test("should login a user", async () => {
     const res = await api
       .post("/api/auth/signin")
       .send(data.user)
@@ -41,11 +46,27 @@ describe("Given valid required fields", () => {
     expect(res.body).toHaveProperty("name", data.user.name);
     expect(res.body).not.toHaveProperty("password");
   });
+
+  //login usuario
+  test("should login users", async () => {
+    for (let i = 0; i < data.users.length; i++) {
+      const res = await api
+        .post("/api/auth/signin")
+        .send(data.users[i])
+        .expect(200)
+        .expect("Content-Type", /json/)
+        .expect("set-cookie", /accessToken/);
+
+      expect(res.body).toHaveProperty("_id");
+      expect(res.body).toHaveProperty("email", data.users[i].email);
+      expect(res.body).toHaveProperty("name", data.users[i].name);
+      expect(res.body).not.toHaveProperty("password");
+    }
+  });
 });
 
-//empty required fields
+//Validacion signin usuario con campos vacios
 describe("Give empty data", () => {
-  beforeEach(async () => await User.deleteMany());
   //without all required fields
   test("Should not login without required fields", async () => {
     const res = await api.post("/api/auth/signin").send({}).expect(400);
@@ -99,8 +120,8 @@ describe("Give empty data", () => {
 
 //invalid required fields values
 describe("Given invalid required fields", () => {
-  beforeAll(async () => await saveUser(data.user));
-  beforeEach(async () => await User.deleteMany());
+  beforeAll(async () => await registerUser(data.user));
+  afterAll(async () => await User.deleteMany());
   //with invalid password
   test("Should not login with invalid password", async () => {
     const res = await api

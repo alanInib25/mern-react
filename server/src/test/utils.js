@@ -52,8 +52,8 @@ const data = {
     password: "",
   },
   userUpdate: {
-    name: "test5",
-    email: "test5@algo.cl",
+    name: "userUpdate1",
+    email: "userUpdate1@algo.cl",
     password: "passEdit",
     confirmPassword: "passEdit",
   },
@@ -170,11 +170,25 @@ const getThumbnailsServer = async ({ data }) => {
 const deleteThumbnailsServer = async () => {
   try {
     const thumbnails = await Thumbnail.find();
-    thumbnails.forEach(async ({ thumbnail }) => {
-      await unlink(join(__dirname, "..", "/uploads/posts", thumbnail));
-    });
+    for (let i = 0; i < thumbnails.length; i++) {
+      await unlink(
+        join(__dirname, "..", "uploads/posts", thumbnails[i].thumbnail)
+      );
+    }
   } catch (error) {
     console.log(error);
+  }
+};
+
+const deleteAvatarFromServer = async () => {
+  try {
+    const users = await User.find();
+    for (let i = 0; i < users.length; i++) {
+      await unlink(join(__dirname, "..", "/uploads/avatar", users[i].avatar));
+    }
+  } catch (error) {
+    console.log(error);
+    return error;
   }
 };
 
@@ -239,6 +253,7 @@ module.exports = {
   logoutUser,
   getThumbnailsServer,
   deleteThumbnailsServer,
+  deleteAvatarFromServer,
   getAdd,
   getAddsPosts,
   getTokenValue,
